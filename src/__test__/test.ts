@@ -8,12 +8,9 @@ test('Generate users and encrypt/decrypt data.', async () => {
   let sender = await AuthenticatedUser.generate();
   let receiver = await AuthenticatedUser.generate();
 
-  let enc = new EncryptionService(sender);
   let sentLog = new AccessLog();
-  let cipher = await enc.encrypt(sentLog, [receiver]);
-
-  let dec = new DecryptionService(receiver);
-  let receivedLog = await dec.decrypt(cipher, sender);
+  let cipher = await sender.encrypt(sentLog, [receiver]);
+  let receivedLog = await receiver.decrypt(cipher, sender);
 
   expect(sentLog.asJson()).toBe(receivedLog.asJson());
 });
@@ -25,23 +22,19 @@ test('Generate users and send data to multiple receivers.', async () => {
   let noReceiver = await AuthenticatedUser.generate();
 
   // Encrypting data for receiver1 and receiver2
-  let enc = new EncryptionService(sender);
   let sentLog = new AccessLog();
-  let cipher = await enc.encrypt(sentLog, [receiver1, receiver2]);
+  let cipher = await sender.encrypt(sentLog, [receiver1, receiver2]);
 
   // Decrypting data at receiver1 is ok
-  let dec1 = new DecryptionService(receiver1);
-  let receivedLog1 = await dec1.decrypt(cipher, sender);
+  let receivedLog1 = await receiver1.decrypt(cipher, sender);
   expect(sentLog.asJson()).toBe(receivedLog1.asJson());
 
   // Decrypting data at receiver2 is ok
-  let dec2 = new DecryptionService(receiver2);
-  let receivedLog2 = await dec2.decrypt(cipher, sender);
+  let receivedLog2 = await receiver2.decrypt(cipher, sender);
   expect(sentLog.asJson()).toBe(receivedLog2.asJson());
 
   // Decrypting data at noReceiver throws error
-  let dec3 = new DecryptionService(noReceiver);
-  await expect(dec3.decrypt(cipher, sender)).rejects.toThrow('decryption operation failed');
+  await expect(noReceiver.decrypt(cipher, sender)).rejects.toThrow('decryption operation failed');
 });
 
 test('Import users based on X509 certificates and PCKS8 private keys', async () => {
@@ -99,12 +92,9 @@ test('Import users based on X509 certificates and PCKS8 private keys', async () 
     pubES256_receiver
   );
 
-  let enc = new EncryptionService(sender);
   let sentLog = new AccessLog();
-  let cipher = await enc.encrypt(sentLog, [receiver]);
-
-  let dec = new DecryptionService(receiver);
-  let receivedLog = await dec.decrypt(cipher, sender);
+  let cipher = await sender.encrypt(sentLog, [receiver]);
+  let receivedLog = await receiver.decrypt(cipher, sender);
 
   expect(sentLog.asJson()).toBe(receivedLog.asJson());
 });

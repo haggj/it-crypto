@@ -1,7 +1,10 @@
-import { FlattenedSign, generateKeyPair, importPKCS8, importX509, KeyLike } from 'jose';
+import { FlattenedSign, GeneralJWE, generateKeyPair, importPKCS8, importX509, KeyLike } from 'jose';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ENCRYPTION_ALG, SIGNING_ALG } from './algorithms';
+import { AccessLog } from './utils';
+import { EncryptionService } from './encryption';
+import { DecryptionService } from './decryption';
 
 export class RemoteUser {
   id: string;
@@ -72,6 +75,14 @@ export class AuthenticatedUser {
     this.decryptionKey = decryptionKey;
     this.verificationKey = verificationKey;
     this.signingKey = signingKey;
+  }
+
+  async encrypt(log: AccessLog, receivers: RemoteUser[]) {
+    return await EncryptionService.encrypt(log, this, receivers);
+  }
+
+  async decrypt(jwe: GeneralJWE, remote: RemoteUser) {
+    return await DecryptionService.decrypt(jwe, this, remote);
   }
 
   signData(data: Uint8Array) {

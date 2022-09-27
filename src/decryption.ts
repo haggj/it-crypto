@@ -1,22 +1,16 @@
-/**
- * @jest-environment browser
- */
-
 import { AuthenticatedUser, RemoteUser } from './user';
 import { FlattenedJWSInput, flattenedVerify, generalDecrypt, GeneralJWE } from 'jose';
 import { AccessLog, AccessLogMeta } from './utils';
 
 export class DecryptionService {
-  receiver: AuthenticatedUser;
-
-  constructor(receiver: AuthenticatedUser) {
-    this.receiver = receiver;
-  }
-
   /*
      Decrypts AccessLogs. Only successful if the receiver was specified to access the log.
      */
-  async decrypt(jwe: GeneralJWE, sender: RemoteUser): Promise<AccessLog> {
+  static async decrypt(
+    jwe: GeneralJWE,
+    receiver: AuthenticatedUser,
+    sender: RemoteUser
+  ): Promise<AccessLog> {
     /*
          Structure of decrpytionResult:
          {
@@ -28,7 +22,7 @@ export class DecryptionService {
             unprotectedHeader: ...
          }
          */
-    const decryptionResult = await generalDecrypt(jwe, this.receiver.decryptionKey);
+    const decryptionResult = await generalDecrypt(jwe, receiver.decryptionKey);
 
     // Verify signedHeader (nested JWS in the protectedHeader, aka jwsLogMeta)
     const jwsLogMeta = await flattenedVerify(
