@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import { v4 as uuidv4 } from 'uuid';
 
 class EncryptionData {
   asJson(): string {
@@ -19,28 +19,29 @@ class EncryptionData {
 }
 
 export class AccessLog extends EncryptionData {
-  data: string = "hallo das ist ein test";
+  data: string = 'hallo das ist ein test';
   more: number = 42;
-  shareId: string = randomUUID();
+  shareId: string = uuidv4();
 
   static fromBytes(data: Uint8Array) {
-    return super.fromBytes(data) as AccessLog;
+    return Object.assign(new AccessLog(), super.fromBytes(data));
   }
 }
 
 export class AccessLogMeta extends EncryptionData {
-  shareId: string;
-  owner: string;
-  receivers: string[];
+  shareId: string = '';
+  owner: string = '';
+  receivers: string[] = [];
 
-  constructor(shareId: string, owner: string, receivers: string[]) {
-    super();
-    this.shareId = shareId;
-    this.owner = owner;
-    this.receivers = receivers;
+  static fromData(shareId: string, owner: string, receivers: string[]): AccessLogMeta {
+    let logMeta = new AccessLogMeta();
+    logMeta.shareId = shareId;
+    logMeta.owner = owner;
+    logMeta.receivers = receivers;
+    return logMeta;
   }
 
-  static fromBytes(data: Uint8Array) {
-    return super.fromBytes(data) as AccessLogMeta;
+  static fromBytes(data: Uint8Array): AccessLogMeta {
+    return Object.assign(new AccessLogMeta(), super.fromBytes(data));
   }
 }

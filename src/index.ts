@@ -1,25 +1,29 @@
-import { AuthenticatedUser } from "./user";
-import { DecryptionService } from "./decryption";
-import { EncryptionService } from "./encryption";
-import { AccessLog } from "./utils";
+import { DecryptionService } from './decryption';
+import { EncryptionService } from './encryption';
+import { AccessLog } from './utils';
+import { AuthenticatedUser } from './user';
 
-export { DecryptionService } from "./decryption";
-export { EncryptionService } from "./encryption";
+export { DecryptionService } from './decryption';
+export { EncryptionService } from './encryption';
+
 export async function test() {
-  let sender = await AuthenticatedUser.create();
-  let receiver = await AuthenticatedUser.create();
-  let receiver2 = await AuthenticatedUser.create();
-  let invalid = await AuthenticatedUser.create();
+  let sender = await AuthenticatedUser.generate();
+  let receiver = await AuthenticatedUser.generate();
+  let receiver2 = await AuthenticatedUser.generate();
+  let invalid = await AuthenticatedUser.generate();
 
   let encService = new EncryptionService(sender);
-  let decService = new DecryptionService(sender, receiver);
-  let decService2 = new DecryptionService(sender, receiver2);
-  let decService3 = new DecryptionService(sender, invalid);
+  let decService = new DecryptionService(receiver);
+  let decService2 = new DecryptionService(receiver2);
+  let decService3 = new DecryptionService(invalid);
 
   let logIn = new AccessLog();
   let jwe = await encService.encrypt(logIn, [receiver, receiver2]);
-  let logOut = await decService.decrypt(jwe);
-  let logOut2 = await decService2.decrypt(jwe);
+  let logOut = await decService.decrypt(jwe, sender);
+  let logOut2 = await decService2.decrypt(jwe, sender);
   console.log(logIn);
+  console.log(logOut);
+  console.log(logOut2);
   // let shouldRaiseError = await decService3.decrypt(jwe);
 }
+test();
