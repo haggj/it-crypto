@@ -1,20 +1,23 @@
 {
   "name": "it-crypto",
   "author": "Jonas Hagg",
-  "version": "0.0.4",
+  "version": "0.0.9",
   "description": "E2EE for the inverse transparency toolchain",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
     "browser": "browserify lib/index.js -s crytp -p esmify -o bundle.js",
     "build": "tsc",
-    "prepare": "npm run build",
+    "prepare": "rm -r ./lib && npm run build",
     "test": "jest --config jestconfig.json"
   },
+  "bin": "lib/cli.js",
   "files": [
     "lib/**/*"
   ],
   "dependencies": {
+    "argparse": "^2.0.1",
+    "buffer": "^6.0.3",
     "jose": "^4.9.3",
     "uuid": "^9.0.0"
   },
