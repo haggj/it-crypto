@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
 import { Certificate } from 'pkijs';
+import { Buffer } from '../globals';
 
 /**
  * Parses a PEM encoded certificate into a PKIJS Certificate.
