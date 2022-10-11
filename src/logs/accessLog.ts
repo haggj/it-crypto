@@ -32,13 +32,17 @@ export class AccessLog extends Serializable {
   tool: string;
   justification: string;
   timestamp: number;
+  accessKind: string;
+  dataType: string[];
 
   constructor(
     monitor: string,
     owner: string,
     tool: string,
     justification: string,
-    timestamp: number
+    timestamp: number,
+    accessKind: string,
+    dataType: string[]
   ) {
     super();
     this.monitor = monitor;
@@ -46,6 +50,8 @@ export class AccessLog extends Serializable {
     this.tool = tool;
     this.justification = justification;
     this.timestamp = timestamp;
+    this.accessKind = accessKind;
+    this.dataType = dataType;
   }
 
   static fromFlattenedJWS(jws: FlattenedJWS): AccessLog {
@@ -69,9 +75,11 @@ export class AccessLog extends Serializable {
       'owner' in obj &&
       'tool' in obj &&
       'justification' in obj &&
-      'timestamp' in obj
+      'timestamp' in obj &&
+      'accessKind' in obj &&
+      'dataType' in obj
     ) {
-      let emptyLog = new AccessLog('', '', '', '', 0);
+      let emptyLog = new AccessLog('', '', '', '', 0, '', []);
       return Object.assign(emptyLog, obj);
     }
     throw Error('JSON does not contain a valid AccessLog. Can not deserialize object.');

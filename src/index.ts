@@ -16,7 +16,7 @@ export async function test() {
 
   // 1. Step: Monitor creates log and encrypts it for owner
   let signedLog = await monitor.signAccessLog(
-    new AccessLog(monitor.id, owner.id, 'tool', 'jus', 30)
+    new AccessLog(monitor.id, owner.id, 'tool', 'jus', 30, 'direct', ['email', 'address'])
   );
   let jwe = await monitor.encrypt(signedLog, [owner]);
 

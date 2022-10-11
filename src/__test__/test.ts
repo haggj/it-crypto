@@ -1,7 +1,13 @@
+/**
+ * @jest-environment node
+ */
+
 import { v4 } from 'uuid';
 import { AccessLog } from '../logs/accessLog';
 import { User } from '../user';
 import { createFetchSender } from '../utils/fetchSender';
+import { Crypto } from '@peculiar/webcrypto';
+import { setEngine } from 'pkijs';
 
 test('Generate users and encrypt/decrypt data.', async () => {
   let sender = await User.generateAuthenticatedUser();
@@ -9,7 +15,7 @@ test('Generate users and encrypt/decrypt data.', async () => {
   let fetchUser = createFetchSender([sender, receiver]);
 
   let sentLog = await sender.signAccessLog(
-    new AccessLog(sender.id, receiver.id, 'tool', 'jus', 30)
+    new AccessLog(sender.id, receiver.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
   );
   let cipher = await sender.encrypt(sentLog, [receiver]);
   let receivedLog = await receiver.decrypt(cipher, fetchUser);
@@ -27,7 +33,7 @@ test('Generate users and send data to multiple receivers.', async () => {
 
   // 1. Step: Monitor creates log and encrypts it for owner
   let signedLog = await monitor.signAccessLog(
-    new AccessLog(monitor.id, owner.id, 'tool', 'jus', 30)
+    new AccessLog(monitor.id, owner.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
   );
   let jwe = await monitor.encrypt(signedLog, [owner]);
 
@@ -105,10 +111,69 @@ test('Import users based on X509 certificates and PCKS8 private keys', async () 
   let fetchUser = createFetchSender([sender, receiver]);
 
   let sentLog = await sender.signAccessLog(
-    new AccessLog(sender.id, receiver.id, 'tool', 'jus', 30)
+    new AccessLog(sender.id, receiver.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
   );
   let cipher = await sender.encrypt(sentLog, [receiver]);
   let receivedLog = await receiver.decrypt(cipher, fetchUser);
 
   expect(AccessLog.fromFlattenedJWS(sentLog).asJson()).toBe(receivedLog.extract().asJson());
+});
+
+test('Import remote User with CA signed keys', async () => {
+  const caCertificate =
+    '-----BEGIN CERTIFICATE-----\n' +
+    'MIIBITCByAIJAJTQXJMDfhh5MAoGCCqGSM49BAMCMBkxFzAVBgNVBAMMDkRldmVs\n' +
+    'b3BtZW50IENBMB4XDTIyMTAxMDE1MzUzM1oXDTIzMTAxMDE1MzUzM1owGTEXMBUG\n' +
+    'A1UEAwwORGV2ZWxvcG1lbnQgQ0EwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAR0\n' +
+    'aTZBEZFtalbSmc8tNjh2UED6s09U4ZNM3fEA7AAOawH6RgQ1LjDtTFSAi0pO9YH4\n' +
+    'SVinZn6m4OwhGaoNZt0sMAoGCCqGSM49BAMCA0gAMEUCIQDtK9bAkAQHrAKmGPfV\n' +
+    'vg87jEqogKq85/q5V6jHZjawhwIgRUKldOc4fTa5/diT1OHKXLUW8uaDjZVNgv8Z\n' +
+    'HRVyXPs=\n' +
+    '-----END CERTIFICATE-----';
+
+  // This certificate is singed by CA private key
+  const encryptionCertificate =
+    '-----BEGIN CERTIFICATE-----\n' +
+    'MIIBJjCBzgIJAOuo8ugAq2waMAkGByqGSM49BAEwGTEXMBUGA1UEAwwORGV2ZWxv\n' +
+    'cG1lbnQgQ0EwHhcNMjIxMDEwMTUzNTMzWhcNMjMxMDEwMTUzNTMzWjAgMR4wHAYD\n' +
+    'VQQDDBUibW9pdG9yMkBtb25pdG9yLmNvbSIwWTATBgcqhkjOPQIBBggqhkjOPQMB\n' +
+    'BwNCAAQGFhz5djKXugIJ0dh4MLGjVbAdDZVQaqAReC4jLq16e3NoQm9+z3+bGCjo\n' +
+    'EMiSoRBaA4keY73F5il2DZXlxEidMAkGByqGSM49BAEDSAAwRQIhAKf7gTLxeQLc\n' +
+    'cWrPQUCNvPrwPnZk+5HZP5fX4t2GlF/bAiBK92ImaxFzjQJsfzoJSA9VWBtaYprU\n' +
+    '2evYcBRL6k18ow==\n' +
+    '-----END CERTIFICATE-----';
+
+  // This certificate is singed by CA private key
+  const verificationCertificate =
+    '-----BEGIN CERTIFICATE-----\n' +
+    'MIIBJTCBzgIJAOuo8ugAq2wbMAkGByqGSM49BAEwGTEXMBUGA1UEAwwORGV2ZWxv\n' +
+    'cG1lbnQgQ0EwHhcNMjIxMDEwMTUzNTMzWhcNMjMxMDEwMTUzNTMzWjAgMR4wHAYD\n' +
+    'VQQDDBUibW9pdG9yMkBtb25pdG9yLmNvbSIwWTATBgcqhkjOPQIBBggqhkjOPQMB\n' +
+    'BwNCAATCCXKekmpbg/bflIh/PJ4YJM49h7fl34+lCWgRt1F2vbYkvnLixGUdsNqb\n' +
+    '0R38ODr9zrrIyTWq7JZvkslbK1+7MAkGByqGSM49BAEDRwAwRAIgV0BrOfJWP/Rk\n' +
+    'Ei4IyJp5nHuGVbiTCLyijGlSdttntKQCIF8V4XUh2PrBKp48IqIWBaqrrtqdY0hr\n' +
+    'f2GtloC9p+ZP\n' +
+    '-----END CERTIFICATE-----';
+
+  // PKIJS requires Crypto engine if not running in browser
+  // The node native webcrypto engine (import {webcrypto} from "crypto") does not implement the correct interface,
+  // this is why @peculiar/webcrypto dependency was added
+  const { Crypto } = require('@peculiar/webcrypto');
+  let crypto = new Crypto();
+  setEngine('newEngine', crypto, crypto.subtle);
+
+  // import remote user which internally verifies if encryption and verification certificate are signed by CA
+  let receiver = await User.importRemoteUser(
+    v4(),
+    encryptionCertificate,
+    verificationCertificate,
+    caCertificate
+  );
+
+  let sender = await User.generateAuthenticatedUser();
+
+  let sentLog = await sender.signAccessLog(
+    new AccessLog(sender.id, receiver.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
+  );
+  await sender.encrypt(sentLog, [receiver]);
 });
