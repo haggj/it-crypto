@@ -177,9 +177,9 @@ export class _AuthenticatedUser implements AuthenticatedUser {
 
   decrypt(
     jwe: GeneralJWE,
-    fetchSender: (email: string) => Promise<RemoteUser>
+    fetchUser: (email: string) => Promise<RemoteUser>
   ): Promise<SignedAccessLog> {
-    return DecryptionService.decrypt(jwe, this, fetchSender);
+    return DecryptionService.decrypt(jwe, this, fetchUser);
   }
 
   signData(data: Uint8Array): Promise<FlattenedJWS> {
