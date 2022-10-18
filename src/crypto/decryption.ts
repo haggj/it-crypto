@@ -1,9 +1,10 @@
 import { FlattenedJWSInput, flattenedVerify, generalDecrypt, GeneralJWE } from 'jose';
 import { AccessLog, SignedAccessLog } from '../logs/accessLog';
-import { AuthenticatedUser, RemoteUser } from '../user';
 import { SharedLog } from '../logs/sharedLog';
 import { SharedHeader } from '../logs/sharedHeader';
 import { Buffer } from '../globals';
+import { RemoteUser } from '../user/remoteUser';
+import { AuthenticatedUser } from '../user/authenticatedUser';
 
 export class DecryptionService {
   /**
@@ -47,31 +48,40 @@ export class DecryptionService {
     const monitor = await fetchUser(DecryptionService._claimedMonitor(jwsAccessLog));
     const accessLog = await DecryptionService._verifyAccessLog(jwsAccessLog, monitor);
 
+    /*
+     Invariants, which need to hold:
+     1. AccessLog.owner == SharedHeader.owner
+     2. SharedLog.creator == AccessLog.monitor || SharedLog.creator == AccessLog.owner
+     3. SharedHeader.shareId = SharedLog.shareId
+    */
+
     // Verify if shareIds are identical
     if (sharedHeader.shareId !== sharedLog.shareId) {
       throw new Error('Malformed data: ShareIds do not match!');
     }
 
-    // Verify if creator is either the owner or monitor of the AccessLog
-    if (creator.id == accessLog.owner) {
-      if (sharedHeader.owner == accessLog.owner) return new SignedAccessLog(jwsAccessLog);
-      throw new Error('Malformed data: SharedHeader.owner != AccessLog.owner.');
-    }
-
-    if (creator.id == accessLog.monitor) {
-      if (
-        sharedHeader.owner === accessLog.owner &&
-        sharedHeader.receivers.length === 1 &&
-        sharedHeader.receivers[0] === accessLog.owner
-      ) {
-        return new SignedAccessLog(jwsAccessLog);
-      }
+    // Verify if sharedHeader contains correct owner
+    if (accessLog.owner !== sharedHeader.owner) {
       throw new Error(
-        `Malformed data: Monitor (${accessLog.monitor}) tried to share with invalid receivers (${sharedHeader.receivers}).`
+        'Malformed data: The owner of the AccessLog is not specified as owner in the SharedHeader!'
       );
     }
 
-    throw new Error('Malformed data: Only AccessLog.monitor or AccessLog.owner can share.');
+    // Verify if either accessLog.owner or accessLog.monitor shared the log
+    if (!(sharedLog.creator == accessLog.monitor || sharedLog.creator == accessLog.owner)) {
+      throw new Error(
+        'Malformed data: Only the owner or the monitor of the AccessLog are allowed to share.'
+      );
+    }
+    if (sharedLog.creator == accessLog.monitor) {
+      if (sharedHeader.receivers.length !== 1 || sharedHeader.receivers[0] !== accessLog.owner) {
+        throw new Error(
+          'Malformed data: Monitors can only share the data with the owner of the log.'
+        );
+      }
+    }
+
+    return new SignedAccessLog(jwsAccessLog);
   }
 
   /**
@@ -110,7 +120,7 @@ export class DecryptionService {
       let vrf = await flattenedVerify(jwsSharedHeader, sender.verificationCertificate);
       return SharedHeader.fromBytes(vrf.payload);
     } catch (e) {
-      throw Error("Could not verify SharedHeader. Tried with user '" + sender.id + "'");
+      throw Error('Could not verify SharedHeader.');
     }
   }
 
@@ -122,7 +132,7 @@ export class DecryptionService {
       let vrf = await flattenedVerify(jwsSharedLog, sender.verificationCertificate);
       return SharedLog.fromBytes(vrf.payload);
     } catch (e) {
-      throw Error("Could not verify SharedLog. Tried with user '" + sender.id + "'");
+      throw Error('Could not verify SharedLog.');
     }
   }
 
@@ -134,7 +144,7 @@ export class DecryptionService {
       let vrf = await flattenedVerify(jwsAccessLog, sender.verificationCertificate);
       return AccessLog.fromBytes(vrf.payload);
     } catch (e) {
-      throw Error("Could not verify AccessLog. Tried with user '" + sender.id + "'");
+      throw Error('Could not verify AccessLog.');
     }
   }
 }

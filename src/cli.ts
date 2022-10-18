@@ -2,9 +2,10 @@
 
 import { createFetchSender } from './utils/fetchSender';
 import { importPKCS8, importX509 } from 'jose';
-import { ENCRYPTION_ALG, SIGNING_ALG } from './globals';
+import { ENCRYPTION_ALG_ASYM, SIGNING_ALG } from './globals';
 import { AccessLog } from './logs/accessLog';
-import { AuthenticatedUser, User } from './user';
+import { UserManagement } from './user/user';
+import { AuthenticatedUser } from './user/authenticatedUser';
 
 const { ArgumentParser } = require('argparse');
 const { version } = require('../package.json');
@@ -51,7 +52,7 @@ async function parse_sender(json: string) {
   try {
     let obj = JSON.parse(json);
     if ('id' in obj && 'signingKey' in obj) {
-      let user = await User.generateAuthenticatedUser();
+      let user = await UserManagement.generateAuthenticatedUser();
       user.id = obj.id;
       user.signingKey = await importPKCS8(decodeb64(obj.signingKey), SIGNING_ALG);
       user.verificationCertificate = await importX509(
@@ -71,13 +72,13 @@ async function parse_receiver(json: string) {
   try {
     let obj = JSON.parse(json);
     if ('id' in obj && 'encryptionCertificate' in obj) {
-      let user = await User.generateAuthenticatedUser();
+      let user = await UserManagement.generateAuthenticatedUser();
       user.id = obj.id;
       user.encryptionCertificate = await importX509(
         decodeb64(obj.encryptionCertificate),
-        ENCRYPTION_ALG
+        ENCRYPTION_ALG_ASYM
       );
-      user.decryptionKey = await importPKCS8(decodeb64(obj.decryptionKey), ENCRYPTION_ALG);
+      user.decryptionKey = await importPKCS8(decodeb64(obj.decryptionKey), ENCRYPTION_ALG_ASYM);
       return user;
     }
   } catch (e) {

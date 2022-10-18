@@ -1,4 +1,4 @@
-import { RemoteUser } from '../user';
+import { RemoteUser } from '../user/remoteUser';
 
 export function createFetchSender(users: RemoteUser[]): (email: string) => Promise<RemoteUser> {
   return async (email: string) => {

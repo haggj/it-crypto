@@ -1,6 +1,8 @@
-import { AuthenticatedUser, RemoteUser, User } from './user';
+import { UserManagement } from './user/user';
 import { AccessLog, SignedAccessLog } from './logs/accessLog';
 import { GeneralJWE } from 'jose';
+import { RemoteUser } from './user/remoteUser';
+import { AuthenticatedUser } from './user/authenticatedUser';
 
 /**
  * The ItCrypto class provides convenient wrappers around the internal crypto operations.
@@ -43,7 +45,7 @@ export class ItCrypto {
     decryptionKey: string,
     signingKey: string
   ) {
-    this.authenticatedUser = await User.importAuthenticatedUser(
+    this.authenticatedUser = await UserManagement.importAuthenticatedUser(
       id,
       encryptionCertificate,
       verificationCertificate,

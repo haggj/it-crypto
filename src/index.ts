@@ -1,7 +1,7 @@
 import { DecryptionService } from './crypto/decryption';
 import { EncryptionService } from './crypto/encryption';
 import { AccessLog } from './logs/accessLog';
-import { User } from './user';
+import { UserManagement } from './user/user';
 import { createFetchSender } from './utils/fetchSender';
 
 export { DecryptionService } from './crypto/decryption';
@@ -9,9 +9,9 @@ export { EncryptionService } from './crypto/encryption';
 
 export async function test() {
   // Setup Users
-  let monitor = await User.generateAuthenticatedUser();
-  let owner = await User.generateAuthenticatedUser();
-  let receiver = await User.generateAuthenticatedUser();
+  let monitor = await UserManagement.generateAuthenticatedUser();
+  let owner = await UserManagement.generateAuthenticatedUser();
+  let receiver = await UserManagement.generateAuthenticatedUser();
   let fetchSender = createFetchSender([monitor, owner, receiver]);
 
   // 1. Step: Monitor creates log and encrypts it for owner

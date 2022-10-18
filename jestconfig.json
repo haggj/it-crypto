@@ -7,5 +7,6 @@
   "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
   "modulePaths": [
     "<rootDir>/src"
-  ]
+  ],
+  "restoreMocks": true
 }
