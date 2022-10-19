@@ -5,7 +5,7 @@ import { SharedLog } from '../logs/sharedLog';
 import { SharedHeader } from '../logs/sharedHeader';
 import { RemoteUser } from '../user/remoteUser';
 import { AuthenticatedUser } from '../user/authenticatedUser';
-import { ENCRYPTION_ALG_ASYM, ENCRYPTION_ALG_SYM } from '../globals';
+import { KEY_WRAP_ALG, ENCRYPTION_ALG } from '../globals';
 
 export class EncryptionService {
   /**
@@ -39,12 +39,10 @@ export class EncryptionService {
     // Sender creates the encrypted JWE
     let jwe = new GeneralEncrypt(
       new TextEncoder().encode(JSON.stringify(jwsSharedLog))
-    ).setProtectedHeader({ enc: ENCRYPTION_ALG_SYM, sharedHeader: jwsSharedHeader });
+    ).setProtectedHeader({ enc: ENCRYPTION_ALG, sharedHeader: jwsSharedHeader });
 
     for (const receiver of receivers) {
-      jwe
-        .addRecipient(receiver.encryptionCertificate)
-        .setUnprotectedHeader({ alg: ENCRYPTION_ALG_ASYM });
+      jwe.addRecipient(receiver.encryptionCertificate).setUnprotectedHeader({ alg: KEY_WRAP_ALG });
     }
     return jwe.encrypt();
   }

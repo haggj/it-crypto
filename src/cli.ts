@@ -2,7 +2,7 @@
 
 import { createFetchSender } from './utils/fetchSender';
 import { importPKCS8, importX509 } from 'jose';
-import { ENCRYPTION_ALG_ASYM, SIGNING_ALG } from './globals';
+import { KEY_WRAP_ALG, SIGNING_ALG } from './globals';
 import { AccessLog } from './logs/accessLog';
 import { UserManagement } from './user/user';
 import { AuthenticatedUser } from './user/authenticatedUser';
@@ -76,9 +76,9 @@ async function parse_receiver(json: string) {
       user.id = obj.id;
       user.encryptionCertificate = await importX509(
         decodeb64(obj.encryptionCertificate),
-        ENCRYPTION_ALG_ASYM
+        KEY_WRAP_ALG
       );
-      user.decryptionKey = await importPKCS8(decodeb64(obj.decryptionKey), ENCRYPTION_ALG_ASYM);
+      user.decryptionKey = await importPKCS8(decodeb64(obj.decryptionKey), KEY_WRAP_ALG);
       return user;
     }
   } catch (e) {

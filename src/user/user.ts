@@ -1,4 +1,5 @@
 import {
+  exportJWK,
   FlattenedJWS,
   FlattenedSign,
   GeneralJWE,
@@ -7,7 +8,7 @@ import {
   importX509,
   KeyLike,
 } from 'jose';
-import { ENCRYPTION_ALG_ASYM, SIGNING_ALG } from '../globals';
+import { KEY_WRAP_ALG, SIGNING_ALG } from '../globals';
 import { v4 as uuidv4 } from 'uuid';
 import { EncryptionService } from '../crypto/encryption';
 import { AccessLog, SignedAccessLog } from '../logs/accessLog';
@@ -33,13 +34,13 @@ export class UserManagement {
 
     return {
       id: id,
-      encryptionCertificate: await importX509(encryptionCertificate, ENCRYPTION_ALG_ASYM),
+      encryptionCertificate: await importX509(encryptionCertificate, KEY_WRAP_ALG),
       verificationCertificate: await importX509(verificationCertificate, SIGNING_ALG),
     } as RemoteUser;
   }
 
   static async generateRemoteUser(): Promise<RemoteUser> {
-    let encryptionKeys = await generateKeyPair(ENCRYPTION_ALG_ASYM);
+    let encryptionKeys = await generateKeyPair(KEY_WRAP_ALG);
     let signingKeys = await generateKeyPair(SIGNING_ALG);
     return {
       id: uuidv4(),
@@ -57,16 +58,17 @@ export class UserManagement {
   ): Promise<AuthenticatedUser> {
     return new _AuthenticatedUser(
       id,
-      await importX509(encryptionCertificate, ENCRYPTION_ALG_ASYM),
+      await importX509(encryptionCertificate, KEY_WRAP_ALG),
       await importX509(verificationCertificate, SIGNING_ALG),
-      await importPKCS8(decryptionKey, ENCRYPTION_ALG_ASYM),
+      await importPKCS8(decryptionKey, KEY_WRAP_ALG),
       await importPKCS8(signingKey, SIGNING_ALG)
     );
   }
 
   static async generateAuthenticatedUser(): Promise<AuthenticatedUser> {
-    let encryptionKeys = await generateKeyPair(ENCRYPTION_ALG_ASYM);
+    let encryptionKeys = await generateKeyPair(KEY_WRAP_ALG);
     let signingKeys = await generateKeyPair(SIGNING_ALG);
+    console.log(await exportJWK(signingKeys.publicKey));
     return new _AuthenticatedUser(
       uuidv4(),
       encryptionKeys.publicKey,

@@ -1,7 +1,7 @@
 import { UserManagement } from '../user/user';
 import { base64ToObj, exampleAccessLog, modifyFirstChar, objToBase64 } from './utils';
 import { EncryptionService } from '../crypto/encryption';
-import { Buffer, ENCRYPTION_ALG_SYM, SIGNING_ALG } from '../globals';
+import { Buffer, ENCRYPTION_ALG, SIGNING_ALG } from '../globals';
 import { SharedHeader } from '../logs/sharedHeader';
 import { DecryptionService } from '../crypto/decryption';
 import { createFetchSender } from '../utils/fetchSender';
@@ -62,7 +62,7 @@ test('Test if expected data is present in JWE protected header', async () => {
 
   // Verify JWE encryption algorithm
   let decodedHeader = JSON.parse(Buffer.from(jwe.protected, 'base64').toString());
-  expect(decodedHeader['enc']).toBe(ENCRYPTION_ALG_SYM);
+  expect(decodedHeader['enc']).toBe(ENCRYPTION_ALG);
 
   // Verify content of sharedHeader
   expect('sharedHeader' in decodedHeader).toBe(true);
