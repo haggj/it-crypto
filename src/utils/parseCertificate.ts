@@ -3,7 +3,7 @@ import { Buffer } from '../globals';
 
 /**
  * Parses a PEM encoded certificate into a PKIJS Certificate.
- * The resulting PKIJS Certificate has fully features PKI support (e.g. verify, sign,...).
+ * The resulting PKIJS Certificate has fully featured PKI support (e.g. verify, sign,...).
  */
 export const pemToCertificate = function (pem: string) {
   //Taken from jose/dist/browser/runtime/asn1/genericImport

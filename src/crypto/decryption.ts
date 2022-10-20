@@ -68,7 +68,7 @@ export class DecryptionService {
     }
 
     // Verify if either accessLog.owner or accessLog.monitor shared the log
-    if (!(sharedLog.creator == accessLog.monitor || sharedLog.creator == accessLog.owner)) {
+    if (!(sharedLog.creator === accessLog.monitor || sharedLog.creator === accessLog.owner)) {
       throw new Error(
         'Malformed data: Only the owner or the monitor of the AccessLog are allowed to share.'
       );
