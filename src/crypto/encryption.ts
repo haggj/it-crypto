@@ -28,13 +28,13 @@ export class EncryptionService {
     // Sender creates and signs the header -> jwsSharedHeader
     let receiverIds: string[] = [];
     receivers.forEach((receiver) => receiverIds.push(receiver.id));
-    let meta = new SharedHeader(
+    let sharedHeader = new SharedHeader(
       shareId,
       AccessLog.fromFlattenedJWS(jwsAccessLog).owner,
       receiverIds
     );
 
-    let jwsSharedHeader = await sender.signData(meta.asBytes());
+    let jwsSharedHeader = await sender.signData(sharedHeader.asBytes());
 
     // Sender creates the encrypted JWE
     let jwe = new GeneralEncrypt(
