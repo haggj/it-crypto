@@ -26,13 +26,33 @@ export class DecryptionService {
    * @param fetchUser: A function which resolves the id of a user to a RemoteUser object.
    */
   static async decrypt(
-    jwe: GeneralJWE,
+    jwe: string,
     receiver: AuthenticatedUser,
     fetchUser: (id: string) => Promise<RemoteUser>
   ): Promise<SignedAccessLog> {
-    const decryptionResult = await generalDecrypt(jwe, receiver.decryptionKey);
+    // Parse and decrypt the given JWE
+    const jweObj = JSON.parse(jwe);
+
+    /*
+    The JS jose library always expects a "recipients" key in the encoded JWE.
+    However, in other libs (go-jose and python-jose) this key will only be present if multiple
+    receivers are specified. If only one receiver is defined, the "recipients" key will not be present.
+    To be compatible with these libraries the following lines copy the
+    provided encrypted key into a "recipients" key.
+     */
+    if (!('recipients' in jweObj)) {
+      jweObj['recipients'] = [
+        {
+          encrypted_key: jweObj['encrypted_key'],
+          header: jweObj['header'],
+        },
+      ];
+    }
+
+    const decryptionResult = await generalDecrypt(jweObj, receiver.decryptionKey);
     const plaintext = new TextDecoder().decode(decryptionResult.plaintext);
 
+    // Parse the included jwsSharedHeader and jwsSharedLog objects
     const jwsSharedHeader = decryptionResult.protectedHeader!.sharedHeader as FlattenedJWSInput;
     const jwsSharedLog = JSON.parse(plaintext) as FlattenedJWSInput;
 
@@ -73,7 +93,7 @@ export class DecryptionService {
         'Malformed data: Only the owner or the monitor of the AccessLog are allowed to share.'
       );
     }
-    if (sharedLog.creator == accessLog.monitor) {
+    if (sharedLog.creator === accessLog.monitor) {
       if (sharedHeader.receivers.length !== 1 || sharedHeader.receivers[0] !== accessLog.owner) {
         throw new Error(
           'Malformed data: Monitors can only share the data with the owner of the log.'
@@ -93,8 +113,8 @@ export class DecryptionService {
    * @param jwsSharedLog
    */
   static _claimedCreator(jwsSharedLog: FlattenedJWSInput) {
-    let decoded = Buffer.from(jwsSharedLog.payload as string, 'base64').toString();
-    let sharedLog = SharedLog.fromJson(decoded);
+    let rawJson = Buffer.from(jwsSharedLog.payload as string, 'base64').toString();
+    let sharedLog = SharedLog.fromJson(rawJson);
     return sharedLog.creator;
   }
 

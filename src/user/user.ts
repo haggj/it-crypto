@@ -68,7 +68,6 @@ export class UserManagement {
   static async generateAuthenticatedUser(): Promise<AuthenticatedUser> {
     let encryptionKeys = await generateKeyPair(KEY_WRAP_ALG);
     let signingKeys = await generateKeyPair(SIGNING_ALG);
-    console.log(await exportJWK(signingKeys.publicKey));
     return new _AuthenticatedUser(
       uuidv4(),
       encryptionKeys.publicKey,
@@ -103,12 +102,12 @@ export class _AuthenticatedUser implements AuthenticatedUser {
     this.signingKey = signingKey;
   }
 
-  encrypt(log: SignedAccessLog, receivers: RemoteUser[]): Promise<GeneralJWE> {
+  encrypt(log: SignedAccessLog, receivers: RemoteUser[]): Promise<string> {
     return EncryptionService.encrypt(log, this, receivers);
   }
 
   decrypt(
-    jwe: GeneralJWE,
+    jwe: string,
     fetchUser: (email: string) => Promise<RemoteUser>
   ): Promise<SignedAccessLog> {
     return DecryptionService.decrypt(jwe, this, fetchUser);

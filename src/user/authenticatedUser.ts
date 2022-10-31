@@ -25,17 +25,14 @@ export interface AuthenticatedUser extends RemoteUser {
    * @param log A signed access log object which needs to be encrypted.
    * @param receivers List of receivers, which can decrypt.
    */
-  encrypt(log: SignedAccessLog, receivers: RemoteUser[]): Promise<GeneralJWE>;
+  encrypt(log: SignedAccessLog, receivers: RemoteUser[]): Promise<string>;
 
   /**
    * Decrypt a JWE containing a SingedAccessLog.
    * @param jwe The JWE token to decrypt.
    * @param fetchSender A function which maps the ID of a user to a RemoteUser object.
    */
-  decrypt(
-    jwe: GeneralJWE,
-    fetchSender: (id: string) => Promise<RemoteUser>
-  ): Promise<SignedAccessLog>;
+  decrypt(jwe: string, fetchSender: (id: string) => Promise<RemoteUser>): Promise<SignedAccessLog>;
 
   /**
    * Cryptographically sign the provided data.

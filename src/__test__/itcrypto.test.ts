@@ -26,7 +26,7 @@ test('Missing login', async () => {
   );
 });
 
-test('Encrypt, decrypt ans sign data', async () => {
+test('Encrypt, decrypt and sign data', async () => {
   // Setup users
   let sender = await UserManagement.importAuthenticatedUser(
     v4(),
@@ -44,20 +44,21 @@ test('Encrypt, decrypt ans sign data', async () => {
   );
   let fetchUser = createFetchSender([sender, receiver]);
 
-  // Encrypting user ItCrypto
+  // Monitor logs in, sings and encrypts data via ItCrypto interface
   let itCrypto = new ItCrypto(fetchUser);
   await itCrypto.login(sender.id, TestKeys.pubA, TestKeys.pubA, TestKeys.privA, TestKeys.privA);
   let log = await itCrypto.signAccessLog(
-    new AccessLog(sender.id, sender.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
+    new AccessLog(sender.id, receiver.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
   );
-  let jwe = await itCrypto.encrypt(log, [sender, receiver]);
+  let jwe = await itCrypto.encrypt(log, [receiver]);
+
+  // Receiver logs in and decrypts data via ItCrypto interface
+  await itCrypto.login(sender.id, TestKeys.pubB, TestKeys.pubB, TestKeys.privB, TestKeys.privB);
 
   // Decrypting logs
   let rec1 = await itCrypto.decrypt(jwe);
-  let rec2 = await sender.decrypt(jwe, fetchUser);
-  let rec3 = await receiver.decrypt(jwe, fetchUser);
+  let rec2 = await receiver.decrypt(jwe, fetchUser);
 
   expect(AccessLog.fromFlattenedJWS(log).asJson()).toBe(rec1.extract().asJson());
   expect(AccessLog.fromFlattenedJWS(log).asJson()).toBe(rec2.extract().asJson());
-  expect(AccessLog.fromFlattenedJWS(log).asJson()).toBe(rec3.extract().asJson());
 });

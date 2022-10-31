@@ -7,7 +7,7 @@ import { DecryptionService } from '../crypto/decryption';
 import { createFetchSender } from '../utils/fetchSender';
 import { SharedLog } from '../logs/sharedLog';
 import { v4 } from 'uuid';
-import { FlattenedSign } from 'jose';
+import { FlattenedSign, GeneralJWE } from 'jose';
 import { AccessLog } from '../logs/accessLog';
 
 /*
@@ -44,7 +44,8 @@ test('Test if expected data is present in JWE token', async () => {
   let receiver2 = await UserManagement.generateAuthenticatedUser();
   let log = await sender.signAccessLog(exampleAccessLog);
 
-  let jwe = await EncryptionService.encrypt(log, sender, [receiver1, receiver2]);
+  let cipher = await EncryptionService.encrypt(log, sender, [receiver1, receiver2]);
+  let jwe = JSON.parse(cipher);
 
   expect('iv' in jwe).toBe(true);
   expect('tag' in jwe).toBe(true);
@@ -58,7 +59,8 @@ test('Test if expected data is present in JWE protected header', async () => {
   let receiver = await UserManagement.generateAuthenticatedUser();
   let log = await sender.signAccessLog(exampleAccessLog);
 
-  let jwe = await EncryptionService.encrypt(log, sender, [receiver]);
+  let cipher = await EncryptionService.encrypt(log, sender, [receiver]);
+  let jwe = JSON.parse(cipher) as GeneralJWE;
 
   // Verify JWE encryption algorithm
   let decodedHeader = JSON.parse(Buffer.from(jwe.protected, 'base64').toString());
@@ -86,15 +88,17 @@ test('Test if modified JWE ciphertext is detected during decryption', async () =
   let fetchSender = createFetchSender([sender]);
   let log = await sender.signAccessLog(rawLog);
 
-  let original = await EncryptionService.encrypt(log, sender, [receiver]);
+  let cipher = await EncryptionService.encrypt(log, sender, [receiver]);
+  let original = JSON.parse(cipher);
   let modified = { ...original };
   modified.ciphertext = modifyFirstChar(modified.ciphertext);
-  await expect(DecryptionService.decrypt(modified, receiver, fetchSender)).rejects.toThrow(
-    'decryption operation failed'
-  );
+  console.log(modified);
+  await expect(
+    DecryptionService.decrypt(JSON.stringify(modified), receiver, fetchSender)
+  ).rejects.toThrow('decryption operation failed');
 
   // Original ciphertext works
-  await DecryptionService.decrypt(original, receiver, fetchSender);
+  await DecryptionService.decrypt(cipher, receiver, fetchSender);
 });
 
 test('Test if modified JWE protected header is detected during decryption', async () => {
@@ -107,16 +111,17 @@ test('Test if modified JWE protected header is detected during decryption', asyn
   let log = await sender.signAccessLog(rawLog);
 
   // Encrypt log
-  let original = await EncryptionService.encrypt(log, sender, [receiver]);
+  let cipher = await EncryptionService.encrypt(log, sender, [receiver]);
+  let original = JSON.parse(cipher);
   let modified = { ...original };
 
   // Modify signature of JWS token -> throw error during decryption
   let jweProtected = base64ToObj(original.protected);
   jweProtected.sharedHeader.signature = modifyFirstChar(jweProtected.sharedHeader.signature);
   modified.protected = objToBase64(jweProtected);
-  await expect(DecryptionService.decrypt(modified, receiver, fetchSender)).rejects.toThrow(
-    'decryption operation failed'
-  );
+  await expect(
+    DecryptionService.decrypt(JSON.stringify(modified), receiver, fetchSender)
+  ).rejects.toThrow('decryption operation failed');
 
   // Modify protected header of JWS token -> throw error during decryption
   jweProtected = base64ToObj(original.protected);
@@ -124,18 +129,18 @@ test('Test if modified JWE protected header is detected during decryption', asyn
   jwsProtected.alg = modifyFirstChar(jwsProtected.alg);
   jweProtected.sharedHeader.protected = objToBase64(jwsProtected);
   modified.protected = objToBase64(jweProtected);
-  await expect(DecryptionService.decrypt(modified, receiver, fetchSender)).rejects.toThrow(
-    'decryption operation failed'
-  );
+  await expect(
+    DecryptionService.decrypt(JSON.stringify(modified), receiver, fetchSender)
+  ).rejects.toThrow('decryption operation failed');
 
   // Modify top level dictionary within protected header of JWE token
   modified.protected = modifyFirstChar(original.protected);
-  await expect(DecryptionService.decrypt(modified, receiver, fetchSender)).rejects.toThrow(
-    'decryption operation failed'
-  );
+  await expect(
+    DecryptionService.decrypt(JSON.stringify(modified), receiver, fetchSender)
+  ).rejects.toThrow('decryption operation failed');
 
   // Original token can be decrypted successfully
-  await DecryptionService.decrypt(original, receiver, fetchSender);
+  await DecryptionService.decrypt(cipher, receiver, fetchSender);
 });
 
 describe('JWS tokens are signed by invalid entities', () => {

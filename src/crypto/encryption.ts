@@ -19,7 +19,7 @@ export class EncryptionService {
     jwsAccessLog: SignedAccessLog,
     sender: AuthenticatedUser,
     receivers: RemoteUser[]
-  ): Promise<GeneralJWE> {
+  ): Promise<string> {
     // Embed signed AccessLog into a SharedLog object and sign this object -> jwsSharedLog
     let shareId = v4();
     let sharedLog = new SharedLog(jwsAccessLog, shareId, sender.id);
@@ -44,6 +44,7 @@ export class EncryptionService {
     for (const receiver of receivers) {
       jwe.addRecipient(receiver.encryptionCertificate).setUnprotectedHeader({ alg: KEY_WRAP_ALG });
     }
-    return jwe.encrypt();
+
+    return JSON.stringify(await jwe.encrypt());
   }
 }

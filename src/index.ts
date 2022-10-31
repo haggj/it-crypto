@@ -3,6 +3,8 @@ import { EncryptionService } from './crypto/encryption';
 import { AccessLog } from './logs/accessLog';
 import { UserManagement } from './user/user';
 import { createFetchSender } from './utils/fetchSender';
+import { v4 } from 'uuid';
+import { TestKeys } from './__test__/utils';
 
 export { DecryptionService } from './crypto/decryption';
 export { EncryptionService } from './crypto/encryption';
@@ -19,6 +21,7 @@ export async function test() {
     new AccessLog(monitor.id, owner.id, 'tool', 'jus', 30, 'direct', ['email', 'address'])
   );
   let jwe = await monitor.encrypt(signedLog, [owner]);
+  console.log(JSON.stringify(jwe));
 
   // 2. Step: Owner can decrypt log
   let logOut = await owner.decrypt(jwe, fetchSender);

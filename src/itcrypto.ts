@@ -59,7 +59,7 @@ export class ItCrypto {
    * @param log
    * @param receivers
    */
-  async encrypt(log: SignedAccessLog, receivers: RemoteUser[]): Promise<GeneralJWE> {
+  async encrypt(log: SignedAccessLog, receivers: RemoteUser[]): Promise<string> {
     if (this.authenticatedUser == null)
       throw Error('Before you can encrypt you need to login a user.');
     return this.authenticatedUser.encrypt(log, receivers);
@@ -69,7 +69,7 @@ export class ItCrypto {
    * Decrypt a jwe. This requires a logged-in user.
    * @param jwe JWE token to decrypt
    */
-  async decrypt(jwe: GeneralJWE) {
+  async decrypt(jwe: string) {
     if (this.authenticatedUser == null)
       throw Error('Before you can decrypt you need to login a user.');
     return this.authenticatedUser.decrypt(jwe, this.fetchUser);
