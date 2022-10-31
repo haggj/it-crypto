@@ -16,6 +16,12 @@ const pythonDecryptB =
 const pythonDecryptAB =
   '{"ciphertext":"CzBFfVHH223qfPTmYAVTHW167o-zyI9yez8wL7b_aU803qdEZxwNWF7gh6p3NJDZL4YoKAOvO9nT6mYYPMNRy_Ef4plvtlbCa271-epr6STK9pxoaSazNaWIAevgVrRHrXtaxekENrajh2Zu8pDcP0ag8PZNjWFtWWcEyF4XQsmbcC6TqUs0Jfq-ylLSla8LJdJ_UBuvnHqQ4cd5Jt_Ix6Xqr1enCSEzjvHYp84W4JydY1spTGVlqJMVJ3o_AmxCPGFXd9M7FcKWoaq4ENGmDkVzmfqdDLPOEZzep8AZ0xbJ4kLEGLBSUZU3YT95btfMs8OKuRFSQ5TKc3kF4WGKRQgOT5KN3-XthLQ5zYpYVjrDw7oW5sIEKsea-TbUdFVfpj-JLCrh9ouCUlRROblbTo16y0xj69DTOIYcAsEoqOv2ElyeW4XArxSjADWj5DFYEPZG8bXmLqyf6OV3swmwSt4B34TJT1jGYVaTQapIOI4VL41JxuOvClq8RRnICg3-8R0mylNwumvhtqR21Z3jYJtYuZtZMLhwRuw2EsCdlMF5wvCI3ogmeDOFBUbF_-DSRQ-03stj3KHLRkYlzZySMRSzukQrjFyyrtpKAixbe02fotRXgQUUweTDxVcY7P04PdCzp4-gl7BFSjgT28t8h310NNotCNUE1YJSewqtqEL1uCpMoDCfbN_YHy3kWP1RrWV7_jNUPxGqYtZ77V3D_wfcrfkX2sbANj7-heEDrJeSMc3Te18ghRGEUCG1JfK8Rx1nDdrzzP07vCHGTox9DB4xrGPEcTzA6GfyR7Vsew0C24mPR3gFhKj-n2HkgEpdjIZrGhzDzqOGBW335mxh-39hTeBSMxvdWC4G8wvuczbeHlq-1VffpYMR-CfgfW2Kf_y_fIyO-DAC6WdRJe3NAQJ7uuqnvTvKkKG_fgBcnXqJ2RKh0sspOjYtOFoJyG8mDELo3Gt3cbOk","iv":"acbTS1uAJbcdJSUW","protected":"eyJhbGciOiJFQ0RILUVTK0EyNTZLVyIsImVuYyI6IkEyNTZHQ00iLCJzaGFyZWRIZWFkZXIiOnsicGF5bG9hZCI6ImV5SnphR0Z5WlVsa0lqb2lOREkzTlRjeU5qTXRNemhrTmkwME1qY3dMVGxqT1dJdE1HWm1NV1l4WlRjME1XUmtJaXdpYjNkdVpYSWlPaUp5WldObGFYWmxjaUlzSW5KbFkyVnBkbVZ5Y3lJNld5SnlaV05sYVhabGNpSXNJbk5sYm1SbGNpSmRmUSIsInByb3RlY3RlZCI6ImV5SmhiR2NpT2lKRlV6STFOaUo5Iiwic2lnbmF0dXJlIjoicUU4YllDOFI4SzBPbnJndGNKdXNiRFpsZEFoOEVmMVpockNQSEVLRFlyaUUxV2hJQm0tNmRrSlpGdlVzNGoxRzk5eWthTXBZbWpxS3JjTzctcXdMNncifX0","recipients":[{"encrypted_key":"WtIEYRlcGm-f2mvHtVVfd6kvoas8JoCHct588BehjR-pzrxF1WPsjA","header":{"epk":{"crv":"P-256","kty":"EC","x":"uSBaUaWBEFzNzCxIsYSK7wxquCLNbF-mZTJ0A3gefsU","y":"SdIArwd5q5Bpw6wZolAPVwAWXKN3wcm3xNla4hP09rA"}}},{"encrypted_key":"IeLDWoWw970dtDmo1KeKJtHbm90-9e5sd5FhgF6yTFgxrU1uKM2brQ","header":{"epk":{"crv":"P-256","kty":"EC","x":"m7NjzJqYeORHj3ynG39yNgfeCzr2vMJ88uilCynlwSs","y":"eddAA468pyeeShgBj_k5nqMVJiHrnsXu84LUET9brLM"}}}],"tag":"wJ_9nBmqrvHS7-WjCl4Gqg"}';
 
+const jsDecryptB =
+  '{"ciphertext":"RPWoayrSjO1q57jh8WcJzFquQUmD4f8shujAVqpsMourphsGOGJJmPD9sXQLg8vne1RHxYOClf7cG5mlwj-MuvpthpmKCTlWY6V2_bkQEALh_IZuvm61a0mr3gtQtt7Mu_BHBKEHZOSQi50Sn_Y-n6HEp92V9ZFiqSh-sAP1wwgzJA4G2_0aAxYJnjILUvtLHk7pnz81sizCvH2IqCNJOKTqDCcqt3RHTiM08djLGe6C7Z577mPRM3JW-LOMbn3jlJRHpv5erLDJpbcewB7WcWQeEgQvg77U72pCo6BA6p_puNgrgBlyvs-UkT4A3PmKd46VAEP4yy-1u9jZeWX9ZfwAZIYPFkWI7I6_C0xyX5uwudkQlOk9HzwwVsMK1ysMHHsMe-Q0fXCoQngjcl7nOh9F35HwDNaIWqy09lovksqPR7PVzdeoxQlT1UfqSxDY9cxdtdZHvVlDTjDVrSG6v_dcmuM9FNLsRwJTgzhD4qrFPxiiZNOKSNBob2wDn9Aui-so1bdcVEGD-KGQABgZitKGnmQdjh7SEtbLUvxuvuf-CXZJ0Bwvs5fSa6GP6xtm8_qaCrc6awgPh8-CscWNkTWtte2XGD1T92J_MOx3QDKyyJw8BFVNZEFRNA2H0EjwhS3eZDizl2PDGP3FABaRcgBAazGTincpvXiB5RLTw0155ADAsD2fKQWSMudHe6WeUtf1HHKr0eqGyLUrYZZMIOpqAoj8aq3U3IS0tsf4UxK-RNzQd40pA5FEYGSFbLqYtc2_nvOt0_JgnuOrBAcWFBIAdDUcUrAfka1OhxCqTfHCPx5OQ36TlftV1cj5pQpc2Z1DPxe8AbbZ8wsxNnYDKlAQbEZTdHE0kA2a8kKLOPJJcxqTqUQfqkdOvDLuHAHdoWQSdxfiMaTqaFmso34-UJmQRq3W3d6NdghpRwLPW_hbN5F0BE4KUALUyfa2iSwUA1Dm4qR35WXaj9V7","iv":"7GwrPjDWr3mWkfUU","recipients":[{"encrypted_key":"teBliE1mhLH4MqU8ehT1LL6bDF6VjI32qKvMMzd3lRWDqTfp3nQGww","header":{"alg":"ECDH-ES+A256KW"}}],"tag":"WGmUG4H7wmGLghYqJDq3eg","protected":"eyJlbmMiOiJBMjU2R0NNIiwic2hhcmVkSGVhZGVyIjp7InNpZ25hdHVyZSI6Im9OemhIZFAwc2VjTDV3Y3VfbGxkeFkzVFM2b1FWX0Q0V3gyaXR6YjBjWkF3WmptbXNKcm1jbTA4RHZTNHBjb2ZobGUzR1F6R0JhUXFSS3E5UjQxWEpRIiwicGF5bG9hZCI6ImV5SnphR0Z5WlVsa0lqb2lPRFU0WkRNMk9HWXROR1F6TmkwMFpEZ3hMV0ZpWVdRdFlqWTFZVEl4WmpjNFpHTTFJaXdpYjNkdVpYSWlPaUp5WldObGFYWmxjaUlzSW5KbFkyVnBkbVZ5Y3lJNld5SnlaV05sYVhabGNpSmRmUSIsInByb3RlY3RlZCI6ImV5SmhiR2NpT2lKRlV6STFOaUo5In0sImVwayI6eyJ4IjoiX1Rva3JhYXFHS0w5dGIzZHVqTTFIVXY5Tm12WDNTN0RYTnNMVzhrUXhOWSIsImNydiI6IlAtMjU2Iiwia3R5IjoiRUMiLCJ5IjoidTdmcV9zbGREcUtHd3VsS0tieWNmOEFSa1NvTUVVVURiX18zbjlPdXZqSSJ9fQ"}';
+
+const jsDecryptAB =
+  '{"ciphertext":"5L2bfeuZIp_fJvzJ0i31GPRkwogk93Gy6_rYbvGShLo6ouZhJe7ClwFMv8dzrcDsVbEuPR08wO1qgOpKWwdTEdq1mNfrWW7RpXWgEu52VPk3WXGdKrVt39QCnQlhMfVzlSd04H42_d3mu7AGL2RVDUoj3HNl8MIuLAQSPAC9dGeDv4NT73x1gEGViTWNOcATiILhlH9aihtYw_EBEEAtBE-LPMPwGoRnhay68JD3_0T_Yll0cPQT_coXx3I499uAuSdS_aJo4NOf90mVYRB-CMyWAFlD5I-0uhJyY0iazmbfYPipS2zBhpHoKhHvagZSUEaM2Y2tvpbfMO3lfs2yLFgJPa60KBTBIZdGaZAfhG1HLkgGiB1L_0qY5xI7QGSkrLgG23cRsbJnqifOXXe_gccG5fn3oaEMdpNT2LzHogOiLIdglSASHaE1CaZjMXvBzQ1-xOkCRmZkJzpy_rbwJAxdBjGR7nIbudXPkLpXVPSolQAyBvVQ37LsQ49aeEGpuyHM-bDb9XNKYMEPJlw0AQ-5Vg9Vd85_bUDNd6xKDB5N1Yr8hyk_TGK6_qj7Sm0VMW9N73U3nuyUb_0ilHGlDs-ra4HkV7-aXmymLiYqYeZkvbaeDr2oHlsVJ00MIb89SqejJL8CnEhWShb_5zCjFgwhRkhl4O4JYYkbcxyJLkv49fkAKGYZehkdrF5nL0iov-zgzX5HPufCUwsBJSCsHzg9hHy_oml8bvSxI_3t3pCLX3CYxhiomq12YFf_W6rWn0o1MS4YVArduXzvtU38tizYW3Wp2djOvT2EtHXj3-yQYFLB2zg3zQNQwCLpbbuIUkDjB1MjXjdFNhoxyS0PcjJDkuX1k3v8hPlSoE9tDg_EpvdYQtqTL4zHbN_rsvTb3b4S90TEzUW3cJ68IZACh4-Fo7edU5cxO3fnRtXb0E22QQy9ImGcsN6FkOpgME71VL_f5BufahY8qWrIAxY","iv":"PN7doBaqovb9pfln","recipients":[{"encrypted_key":"OXxxUKSlAAs70QuHGt73tNJAmhcEZ-VqdfkbuT2HVrd0iCAk5wGxcA","header":{"alg":"ECDH-ES+A256KW","epk":{"x":"dqoLrlbeMXTWqUJ_EB7Zxy5nN1QLrcMr3lgPJCXjDHE","crv":"P-256","kty":"EC","y":"hjsuKi_ftpeUWER831fVQPPqmwVfP7R7be-6HhIbLto"}}},{"encrypted_key":"sYQEkII22yh-jrz9lEKa1D3nsuBK_AF6B_9Ng7E94JTzaxIey2_UAQ","header":{"alg":"ECDH-ES+A256KW","epk":{"x":"jQlyTL4wUw5JjbpyboVH3_wZvYGGyT8ePx5kCplGJNc","crv":"P-256","kty":"EC","y":"DrstDm_exJuLJ8Vbpjqu4_8R8Y4ul5c7zzuh-kKUp7g"}}}],"tag":"Wd43r_immp33ZLhIQkuKJg","protected":"eyJlbmMiOiJBMjU2R0NNIiwic2hhcmVkSGVhZGVyIjp7InNpZ25hdHVyZSI6InVXb3dUbGVCMHhHTzFIVlloMURuSzdOVVFpSFhKb2dBM1lKQnVZc0FzbVhyaUNER0RKcnQ0Z0NqMlkzeGpCTmZXX0xjMlpsUG9naGtBcFRlaVo1U1FRIiwicGF5bG9hZCI6ImV5SnphR0Z5WlVsa0lqb2lNakZtTVRaaFpUQXRObVEzTmkwMFl6Um1MV0UxT1dJdE1tSXpOV1V4T1RaaFpXSmpJaXdpYjNkdVpYSWlPaUp5WldObGFYWmxjaUlzSW5KbFkyVnBkbVZ5Y3lJNld5SnlaV05sYVhabGNpSXNJbk5sYm1SbGNpSmRmUSIsInByb3RlY3RlZCI6ImV5SmhiR2NpT2lKRlV6STFOaUo5In19"}';
+
 describe('Test compatibility with go-it-crypto', () => {
   test('Decrypt JWE for single receiver', async () => {
     let sender = await UserManagement.importAuthenticatedUser(
@@ -119,5 +125,58 @@ describe('Test compatibility with py-it-crypto', () => {
     signedLog = await receiver.decrypt(pythonDecryptAB, fetchUser);
     accessLog = signedLog.extract();
     expect(accessLog.justification).toBe('py-it-crypto');
+  });
+});
+
+describe('Test compatibility with js-it-crypto', () => {
+  test('Decrypt JWE for single receiver', async () => {
+    let sender = await UserManagement.importAuthenticatedUser(
+      'sender',
+      TestKeys.pubA,
+      TestKeys.pubA,
+      TestKeys.privA,
+      TestKeys.privA
+    );
+
+    let receiver = await UserManagement.importAuthenticatedUser(
+      'receiver',
+      TestKeys.pubB,
+      TestKeys.pubB,
+      TestKeys.privB,
+      TestKeys.privB
+    );
+
+    let fetchUser = createFetchSender([sender, receiver]);
+
+    let signedLog = await receiver.decrypt(jsDecryptB, fetchUser);
+    let accessLog = signedLog.extract();
+    expect(accessLog.justification).toBe('js-it-crypto');
+  });
+  test('Decrypt JWE for multiple receivers', async () => {
+    let sender = await UserManagement.importAuthenticatedUser(
+      'sender',
+      TestKeys.pubA,
+      TestKeys.pubA,
+      TestKeys.privA,
+      TestKeys.privA
+    );
+
+    let receiver = await UserManagement.importAuthenticatedUser(
+      'receiver',
+      TestKeys.pubB,
+      TestKeys.pubB,
+      TestKeys.privB,
+      TestKeys.privB
+    );
+
+    let fetchUser = createFetchSender([sender, receiver]);
+
+    let signedLog = await sender.decrypt(jsDecryptAB, fetchUser);
+    let accessLog = signedLog.extract();
+    expect(accessLog.justification).toBe('js-it-crypto');
+
+    signedLog = await receiver.decrypt(jsDecryptAB, fetchUser);
+    accessLog = signedLog.extract();
+    expect(accessLog.justification).toBe('js-it-crypto');
   });
 });
