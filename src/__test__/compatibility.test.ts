@@ -1,8 +1,6 @@
 import { UserManagement } from '../user/user';
-import { exampleAccessLog, TestKeys } from './utils';
-import { EncryptionService } from '../crypto/encryption';
+import { TestKeys } from './utils';
 import { createFetchSender } from '../utils/fetchSender';
-import { DecryptionService } from '../crypto/decryption';
 
 const goDecryptB =
   '{"protected":"eyJhbGciOiJFQ0RILUVTK0EyNTZLVyIsImVuYyI6IkEyNTZHQ00iLCJlcGsiOnsia3R5IjoiRUMiLCJjcnYiOiJQLTI1NiIsIngiOiJpeHdsY24zdFFQakJnY2JoU0JmMWJHaE5ZalV0ckJwZTNzdkNaUGJsTV9BIiwieSI6Im1HdWVPaTBwQUc1aThLME5VTmdHT2xhTm1HeFFtQVFDMmxNYktoS1lUbmcifSwic2hhcmVkSGVhZGVyIjp7InBheWxvYWQiOiJleUp6YUdGeVpVbGtJam9pTldObVl6STNNV0l0WkdJeE1TMDBOREEzTFRnME56TXRNRGxqTVRFME5ERXlZemRpSWl3aWIzZHVaWElpT2lKeVpXTmxhWFpsY2lJc0luSmxZMlZwZG1WeWN5STZXeUp5WldObGFYWmxjaUpkZlEiLCJwcm90ZWN0ZWQiOiJleUpoYkdjaU9pSkZVekkxTmlKOSIsInNpZ25hdHVyZSI6IlBGOTVwOHMwQVNOYkVSS3hncExSWE5WUUdHb1Jwak92UXIzQ3RZdmN0aUhDYmZOcmM1RmQ5SFpHcmFiczRrWWdhTWtFOG0zTDVLakotRGNxNnFUVnJ3In19","encrypted_key":"tGgz8UpMQiKGer3vJGh8fLnWvx9nYL2ZGJjR-D6Peo6Oz7EkVG53mQ","iv":"0AMTbgJrnoGYuLaA","ciphertext":"hCQT-2dat2PDRBHxw9xsMPf_X5HW-quewB7fawipIUbr7lHNnEMiMyDxiEvmR_sJe_MtiEv7pYg1fAgMmwHh8yGWv23fyQG7g-g1cSC2vG5ArgSDloe4EcOoMkvGxv1hSq3vMI_UNf0VQyqQu5JbeZTWPH0wVAsyVckkEf-5wpS7SH1h8GYGtsLpgF7FhjigBJSvfqwp-yYOiUkqclhYTebIz1gnlcFTHCioX9VwQkeVt5OLqfXi5dgyx1YPHTDNowmr_d9J_-Obn-k4JGPvBXaazIYtfgzBO8b23srNMSsFJhhtE6dADhPHWPZO94Swg4XJNhz884raNCw3J1-p5odlhAsp6Kw4Q7a4VZvVNX2u0k-JNrN4YRqGn_DB1noHnWfAkf6-0-6Jqi_9Sewdj48avGly0M1NRAwigoN7gpMCHepaNbdDiJqHSEEFh10H55ZxX_tgUtdHwrBj89otPtU8mveTDfR7u-JwugwzD2DV76vc96GW_pTLWP9QDOhA9ACkqCVlHPyefSWFNOhaT0IOK7SUFtYjZuzfUVP_eI6SVZBXGk_PEo64puHfhfbhwfmBv1A22BITmkIW1FzSDAI6T05ZryEAyfYjVOd-WXzIUjy2MqRBN-Y6EwuUui7fUKHx02hZek1CnZmo2lbAUk9zMJOMLcmhyVryWsVy8eftIqThHK5X8QNnB7ojlv1Dq_hLQxp0SGIR-q_ga9eqvj_5oU63_s2Pane-yBDkavzUZH9o4PgYOcrm4ouAs1pTuYeqdLMpJVQLckseXxz8A5sIw7SJ5dRbI_wZ3gN16ODTl5U8bxEvPGN4f4BJiXYRiakpwogBESVdECEQIYYUduPxSOQKkOZaBr6hCx4JtbERgHJj5vs_5TsI10LJt_xByvKkslzfGyvvYXspbdQLUsXCTEUntPygdAseDOtro3mwYxf8m9KGcSR1zdy8BSHa8NRqoZMn1Xk","tag":"-FqAT10fjTSxJupw6Wy3xw"}';
@@ -22,23 +20,26 @@ const jsDecryptB =
 const jsDecryptAB =
   '{"ciphertext":"5L2bfeuZIp_fJvzJ0i31GPRkwogk93Gy6_rYbvGShLo6ouZhJe7ClwFMv8dzrcDsVbEuPR08wO1qgOpKWwdTEdq1mNfrWW7RpXWgEu52VPk3WXGdKrVt39QCnQlhMfVzlSd04H42_d3mu7AGL2RVDUoj3HNl8MIuLAQSPAC9dGeDv4NT73x1gEGViTWNOcATiILhlH9aihtYw_EBEEAtBE-LPMPwGoRnhay68JD3_0T_Yll0cPQT_coXx3I499uAuSdS_aJo4NOf90mVYRB-CMyWAFlD5I-0uhJyY0iazmbfYPipS2zBhpHoKhHvagZSUEaM2Y2tvpbfMO3lfs2yLFgJPa60KBTBIZdGaZAfhG1HLkgGiB1L_0qY5xI7QGSkrLgG23cRsbJnqifOXXe_gccG5fn3oaEMdpNT2LzHogOiLIdglSASHaE1CaZjMXvBzQ1-xOkCRmZkJzpy_rbwJAxdBjGR7nIbudXPkLpXVPSolQAyBvVQ37LsQ49aeEGpuyHM-bDb9XNKYMEPJlw0AQ-5Vg9Vd85_bUDNd6xKDB5N1Yr8hyk_TGK6_qj7Sm0VMW9N73U3nuyUb_0ilHGlDs-ra4HkV7-aXmymLiYqYeZkvbaeDr2oHlsVJ00MIb89SqejJL8CnEhWShb_5zCjFgwhRkhl4O4JYYkbcxyJLkv49fkAKGYZehkdrF5nL0iov-zgzX5HPufCUwsBJSCsHzg9hHy_oml8bvSxI_3t3pCLX3CYxhiomq12YFf_W6rWn0o1MS4YVArduXzvtU38tizYW3Wp2djOvT2EtHXj3-yQYFLB2zg3zQNQwCLpbbuIUkDjB1MjXjdFNhoxyS0PcjJDkuX1k3v8hPlSoE9tDg_EpvdYQtqTL4zHbN_rsvTb3b4S90TEzUW3cJ68IZACh4-Fo7edU5cxO3fnRtXb0E22QQy9ImGcsN6FkOpgME71VL_f5BufahY8qWrIAxY","iv":"PN7doBaqovb9pfln","recipients":[{"encrypted_key":"OXxxUKSlAAs70QuHGt73tNJAmhcEZ-VqdfkbuT2HVrd0iCAk5wGxcA","header":{"alg":"ECDH-ES+A256KW","epk":{"x":"dqoLrlbeMXTWqUJ_EB7Zxy5nN1QLrcMr3lgPJCXjDHE","crv":"P-256","kty":"EC","y":"hjsuKi_ftpeUWER831fVQPPqmwVfP7R7be-6HhIbLto"}}},{"encrypted_key":"sYQEkII22yh-jrz9lEKa1D3nsuBK_AF6B_9Ng7E94JTzaxIey2_UAQ","header":{"alg":"ECDH-ES+A256KW","epk":{"x":"jQlyTL4wUw5JjbpyboVH3_wZvYGGyT8ePx5kCplGJNc","crv":"P-256","kty":"EC","y":"DrstDm_exJuLJ8Vbpjqu4_8R8Y4ul5c7zzuh-kKUp7g"}}}],"tag":"Wd43r_immp33ZLhIQkuKJg","protected":"eyJlbmMiOiJBMjU2R0NNIiwic2hhcmVkSGVhZGVyIjp7InNpZ25hdHVyZSI6InVXb3dUbGVCMHhHTzFIVlloMURuSzdOVVFpSFhKb2dBM1lKQnVZc0FzbVhyaUNER0RKcnQ0Z0NqMlkzeGpCTmZXX0xjMlpsUG9naGtBcFRlaVo1U1FRIiwicGF5bG9hZCI6ImV5SnphR0Z5WlVsa0lqb2lNakZtTVRaaFpUQXRObVEzTmkwMFl6Um1MV0UxT1dJdE1tSXpOV1V4T1RaaFpXSmpJaXdpYjNkdVpYSWlPaUp5WldObGFYWmxjaUlzSW5KbFkyVnBkbVZ5Y3lJNld5SnlaV05sYVhabGNpSXNJbk5sYm1SbGNpSmRmUSIsInByb3RlY3RlZCI6ImV5SmhiR2NpT2lKRlV6STFOaUo5In19"}';
 
+let senderPromise = UserManagement.importAuthenticatedUser(
+  'sender',
+  TestKeys.pubA,
+  TestKeys.pubA,
+  TestKeys.privA,
+  TestKeys.privA
+);
+
+let receiverPromise = UserManagement.importAuthenticatedUser(
+  'receiver',
+  TestKeys.pubB,
+  TestKeys.pubB,
+  TestKeys.privB,
+  TestKeys.privB
+);
+
 describe('Test compatibility with go-it-crypto', () => {
   test('Decrypt JWE for single receiver', async () => {
-    let sender = await UserManagement.importAuthenticatedUser(
-      'sender',
-      TestKeys.pubA,
-      TestKeys.pubA,
-      TestKeys.privA,
-      TestKeys.privA
-    );
-
-    let receiver = await UserManagement.importAuthenticatedUser(
-      'receiver',
-      TestKeys.pubB,
-      TestKeys.pubB,
-      TestKeys.privB,
-      TestKeys.privB
-    );
+    let sender = await senderPromise;
+    let receiver = await receiverPromise;
 
     let fetchUser = createFetchSender([sender, receiver]);
 
@@ -47,21 +48,8 @@ describe('Test compatibility with go-it-crypto', () => {
     expect(accessLog.justification).toBe('go-it-crypto');
   });
   test('Decrypt JWE for multiple receivers', async () => {
-    let sender = await UserManagement.importAuthenticatedUser(
-      'sender',
-      TestKeys.pubA,
-      TestKeys.pubA,
-      TestKeys.privA,
-      TestKeys.privA
-    );
-
-    let receiver = await UserManagement.importAuthenticatedUser(
-      'receiver',
-      TestKeys.pubB,
-      TestKeys.pubB,
-      TestKeys.privB,
-      TestKeys.privB
-    );
+    let sender = await senderPromise;
+    let receiver = await receiverPromise;
 
     let fetchUser = createFetchSender([sender, receiver]);
 
@@ -77,21 +65,8 @@ describe('Test compatibility with go-it-crypto', () => {
 
 describe('Test compatibility with py-it-crypto', () => {
   test('Decrypt JWE for single receiver', async () => {
-    let sender = await UserManagement.importAuthenticatedUser(
-      'sender',
-      TestKeys.pubA,
-      TestKeys.pubA,
-      TestKeys.privA,
-      TestKeys.privA
-    );
-
-    let receiver = await UserManagement.importAuthenticatedUser(
-      'receiver',
-      TestKeys.pubB,
-      TestKeys.pubB,
-      TestKeys.privB,
-      TestKeys.privB
-    );
+    let sender = await senderPromise;
+    let receiver = await receiverPromise;
 
     let fetchUser = createFetchSender([sender, receiver]);
 
@@ -100,21 +75,8 @@ describe('Test compatibility with py-it-crypto', () => {
     expect(accessLog.justification).toBe('py-it-crypto');
   });
   test('Decrypt JWE for multiple receivers', async () => {
-    let sender = await UserManagement.importAuthenticatedUser(
-      'sender',
-      TestKeys.pubA,
-      TestKeys.pubA,
-      TestKeys.privA,
-      TestKeys.privA
-    );
-
-    let receiver = await UserManagement.importAuthenticatedUser(
-      'receiver',
-      TestKeys.pubB,
-      TestKeys.pubB,
-      TestKeys.privB,
-      TestKeys.privB
-    );
+    let sender = await senderPromise;
+    let receiver = await receiverPromise;
 
     let fetchUser = createFetchSender([sender, receiver]);
 
@@ -130,21 +92,8 @@ describe('Test compatibility with py-it-crypto', () => {
 
 describe('Test compatibility with js-it-crypto', () => {
   test('Decrypt JWE for single receiver', async () => {
-    let sender = await UserManagement.importAuthenticatedUser(
-      'sender',
-      TestKeys.pubA,
-      TestKeys.pubA,
-      TestKeys.privA,
-      TestKeys.privA
-    );
-
-    let receiver = await UserManagement.importAuthenticatedUser(
-      'receiver',
-      TestKeys.pubB,
-      TestKeys.pubB,
-      TestKeys.privB,
-      TestKeys.privB
-    );
+    let sender = await senderPromise;
+    let receiver = await receiverPromise;
 
     let fetchUser = createFetchSender([sender, receiver]);
 
@@ -153,21 +102,8 @@ describe('Test compatibility with js-it-crypto', () => {
     expect(accessLog.justification).toBe('js-it-crypto');
   });
   test('Decrypt JWE for multiple receivers', async () => {
-    let sender = await UserManagement.importAuthenticatedUser(
-      'sender',
-      TestKeys.pubA,
-      TestKeys.pubA,
-      TestKeys.privA,
-      TestKeys.privA
-    );
-
-    let receiver = await UserManagement.importAuthenticatedUser(
-      'receiver',
-      TestKeys.pubB,
-      TestKeys.pubB,
-      TestKeys.privB,
-      TestKeys.privB
-    );
+    let sender = await senderPromise;
+    let receiver = await receiverPromise;
 
     let fetchUser = createFetchSender([sender, receiver]);
 
