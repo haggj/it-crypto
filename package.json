@@ -1,5 +1,5 @@
 {
-  "name": "it-crypto",
+  "name": "ts-it-crypto",
   "author": "Jonas Hagg",
   "version": "1.0.0",
   "description": "E2EE for the inverse transparency toolchain",

@@ -3,7 +3,7 @@
 This typescript module implements E2EE encryption functionality for the inverse transparency toolchain [[1]](#1).
 It was developed in the scope of my [master thesis at TUM](https://github.com/haggj/Masterarbeit).
 It is fully compatible with the corresponding Golang library [go-it-crypto](https://github.com/haggj/go-it-crypto) and Python library [py-it-crypto](https://github.com/haggj/py-it-crypto).
-The module was published to the [npm package index](https://www.npmjs.com/package/it-crypto).
+The module was published to the [npm package index](https://www.npmjs.com/package/ts-it-crypto).
 
 For a detailed description of the implemented protocol, security considerations and software architecture have a look to the thesis.
 
