@@ -1,6 +1,6 @@
 # Ts-It-Crypto
 
-This typescript module implements E2EE encryption functionality for the inverse transparency toolchain [[1]](#1).
+This typescript module implements end-to-end encryption (E2EE) functionality for the inverse transparency toolchain [[1]](#1).
 It was developed in the scope of my [master thesis at TUM](https://github.com/haggj/Masterarbeit).
 It is fully compatible with the corresponding Golang library [go-it-crypto](https://github.com/haggj/go-it-crypto) and Python library [py-it-crypto](https://github.com/haggj/py-it-crypto).
 The module was published to the [npm package index](https://www.npmjs.com/package/ts-it-crypto).
@@ -16,33 +16,73 @@ The functionality of this library requires a function that resolves the identity
 This objects holds the public keys of a user.
 This function is mandatory for decryption since it dynamically resolves the identities to the cryptographic keys
 of a user.
-This function needs to implement the following signature:
+Usually the function requests your API to fetch public keys of a user.
+The function needs to implement the following method signature:
 `RemoteUser fetchUser(string)`
 
-Assuming `pubA` and `privA` are PEM-encoded public/private keys of a user, the following code
-initializes the it-crypto library for the owner of this keypair.
+Assuming `pubA` and `privA` are PEM-encoded public/private keys of a user, the following code is a complete example of how to use the library:
 
- ```
-  let itCrypto = new ItCrypto(fetchUser);
-  await itCrypto.login(sender.id, pubA, pubA, privA, privA);
- ```
-The logged-in user can sign AccessLogs:
+ ```typescript
+const pubCa =
+  '-----BEGIN CERTIFICATE-----\n' +
+  'MIIBITCByAIJAJTQXJMDfhh5MAoGCCqGSM49BAMCMBkxFzAVBgNVBAMMDkRldmVs\n' +
+  'b3BtZW50IENBMB4XDTIyMTAxMDE1MzUzM1oXDTIzMTAxMDE1MzUzM1owGTEXMBUG\n' +
+  'A1UEAwwORGV2ZWxvcG1lbnQgQ0EwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAR0\n' +
+  'aTZBEZFtalbSmc8tNjh2UED6s09U4ZNM3fEA7AAOawH6RgQ1LjDtTFSAi0pO9YH4\n' +
+  'SVinZn6m4OwhGaoNZt0sMAoGCCqGSM49BAMCA0gAMEUCIQDtK9bAkAQHrAKmGPfV\n' +
+  'vg87jEqogKq85/q5V6jHZjawhwIgRUKldOc4fTa5/diT1OHKXLUW8uaDjZVNgv8Z\n' +
+  'HRVyXPs=\n' +
+  '-----END CERTIFICATE-----';
 
- ```
-let signedLog = await itCrypto.signAccessLog(accessLog);
- ```
+const pubA =
+  '-----BEGIN CERTIFICATE-----\n' +
+  'MIIBIDCByQIJAOuo8ugAq2wUMAkGByqGSM49BAEwGTEXMBUGA1UEAwwORGV2ZWxv\n' +
+  'cG1lbnQgQ0EwHhcNMjIxMDEwMTUzNTMzWhcNMjMxMDEwMTUzNTMzWjAbMRkwFwYD\n' +
+  'VQQDDBAibW1AZXhhbXBsZS5jb20iMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE\n' +
+  'YlFye+p72EZ2z9xeBO9JAttfa/dhD6IhS6YpL1OixTkwiNA7CRU/tvGwlgdkVJPh\n' +
+  'QLhKldBRk37co8zLv3naszAJBgcqhkjOPQQBA0cAMEQCIDnDoDAmt4x7SSWVmYEs\n' +
+  '+JwLesjmZTkw0KaiZa+2E6ocAiBzPKTBADCCWDCGbiJg4V/7KV1tSiOYC9EpFOrk\n' +
+  'kyxIiA==\n' +
+  '-----END CERTIFICATE-----\n';
 
-The logged-in user can encrypt SignedAccessLogs for other users:
+const privA =
+  '-----BEGIN PRIVATE KEY-----\n' +
+  'MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgAfMysADImEAjdKcY\n' +
+  '2sAIulabkZDyLdShbh+etB+RlZShRANCAARiUXJ76nvYRnbP3F4E70kC219r92EP\n' +
+  'oiFLpikvU6LFOTCI0DsJFT+28bCWB2RUk+FAuEqV0FGTftyjzMu/edqz\n' +
+  '-----END PRIVATE KEY-----';
 
- ```
-let cipher = await itCrypto.encrypt(signedLog, [receiver1, receiver2]);
- ```
+function fetchUser(id: string): Promise<RemoteUser> {
+  /**
+   * Resolve id to RemoteUser object.
+   * Usually this function requests your API to fetch user keys.
+   */
+  if (id == 'monitor') {
+    return UserManagement.importRemoteUser(id, pubA, pubA, pubCa);
+  }
+  throw Error('User not found');
+}
 
-The logged-in user can decrypt tokens (this only succeeds if this user was specified as receiver during encryption):
+ // This code initializes the it-crypto library with the private key pubA and secret key privA.
+var itCrypto = new ItCrypto(fetchUser);
+await itCrypto.login('monitor', pubA, pubA, privA, privA);
 
- ```
-let receivedSignedLog = await itCrypto.decrypt(cipher);
-let receivedAccessLog, err = receivedSignedLog.extract()
+// The logged-in user can create singed access logs.
+var log = new AccessLog(itCrypto.user!.id, 'owner', 'tool', 'jus', 30, 'direct', [
+  'email',
+  'address',
+]);
+var singedLog = await itCrypto.signAccessLog(log);
+
+// The logged-in user can encrypt the logs for others.
+var owner = await UserManagement.generateAuthenticatedUser('owner');
+var jwe = await itCrypto.encrypt(singedLog, [owner]);
+
+// The logged-in user can decrypt logs intended for him
+itCrypto.user = owner;
+var receivedSignedLog = await itCrypto.decrypt(jwe);
+var receivedLog = receivedSignedLog.extract();
+console.log(receivedLog);
  ```
 
 # Development

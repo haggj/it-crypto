@@ -1,6 +1,5 @@
 import { UserManagement } from './user/user';
 import { AccessLog, SignedAccessLog } from './logs/accessLog';
-import { GeneralJWE } from 'jose';
 import { RemoteUser } from './user/remoteUser';
 import { AuthenticatedUser } from './user/authenticatedUser';
 
@@ -22,7 +21,7 @@ import { AuthenticatedUser } from './user/authenticatedUser';
  * crypto.decrypt()
  */
 export class ItCrypto {
-  authenticatedUser: AuthenticatedUser | null = null;
+  user: AuthenticatedUser | null = null;
   fetchUser: (id: string) => Promise<RemoteUser>;
 
   constructor(fetchUser: (id: string) => Promise<RemoteUser>) {
@@ -45,7 +44,7 @@ export class ItCrypto {
     decryptionKey: string,
     signingKey: string
   ) {
-    this.authenticatedUser = await UserManagement.importAuthenticatedUser(
+    this.user = await UserManagement.importAuthenticatedUser(
       id,
       encryptionCertificate,
       verificationCertificate,
@@ -60,9 +59,8 @@ export class ItCrypto {
    * @param receivers
    */
   async encrypt(log: SignedAccessLog, receivers: RemoteUser[]): Promise<string> {
-    if (this.authenticatedUser == null)
-      throw Error('Before you can encrypt you need to login a user.');
-    return this.authenticatedUser.encrypt(log, receivers);
+    if (this.user == null) throw Error('Before you can encrypt you need to login a user.');
+    return this.user.encrypt(log, receivers);
   }
 
   /**
@@ -70,9 +68,8 @@ export class ItCrypto {
    * @param jwe JWE token to decrypt
    */
   async decrypt(jwe: string) {
-    if (this.authenticatedUser == null)
-      throw Error('Before you can decrypt you need to login a user.');
-    return this.authenticatedUser.decrypt(jwe, this.fetchUser);
+    if (this.user == null) throw Error('Before you can decrypt you need to login a user.');
+    return this.user.decrypt(jwe, this.fetchUser);
   }
 
   /**
@@ -80,8 +77,7 @@ export class ItCrypto {
    * @param log AccessLog which needs to be signed
    */
   async signAccessLog(log: AccessLog): Promise<SignedAccessLog> {
-    if (this.authenticatedUser == null)
-      throw Error('Before you can sign data you need to login a user.');
-    return this.authenticatedUser.signAccessLog(log);
+    if (this.user == null) throw Error('Before you can sign data you need to login a user.');
+    return this.user.signAccessLog(log);
   }
 }

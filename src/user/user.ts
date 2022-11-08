@@ -1,8 +1,6 @@
 import {
-  exportJWK,
   FlattenedJWS,
   FlattenedSign,
-  GeneralJWE,
   generateKeyPair,
   importPKCS8,
   importX509,
@@ -65,11 +63,15 @@ export class UserManagement {
     );
   }
 
-  static async generateAuthenticatedUser(): Promise<AuthenticatedUser> {
+  static async generateAuthenticatedUser(id?: string): Promise<AuthenticatedUser> {
     let encryptionKeys = await generateKeyPair(KEY_WRAP_ALG);
     let signingKeys = await generateKeyPair(SIGNING_ALG);
+    if (id == null) {
+      id = uuidv4();
+    }
+
     return new _AuthenticatedUser(
-      uuidv4(),
+      id,
       encryptionKeys.publicKey,
       signingKeys.publicKey,
       encryptionKeys.privateKey,
