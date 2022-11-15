@@ -3,13 +3,13 @@ import { FlattenedJWS } from 'jose';
 
 export class SharedLog extends Serializable {
   log: FlattenedJWS;
-  shareId: string;
+  recipients: string[];
   creator: string;
 
-  constructor(log: FlattenedJWS, shareId: string, creator: string) {
+  constructor(log: FlattenedJWS, recipients: string[], creator: string) {
     super();
     this.log = log;
-    this.shareId = shareId;
+    this.recipients = recipients;
     this.creator = creator;
   }
 
@@ -24,8 +24,8 @@ export class SharedLog extends Serializable {
   }
 
   static fromObj(obj: object): SharedLog {
-    if ('log' in obj && 'shareId' in obj && 'creator' in obj) {
-      let emptyLog = new SharedLog({ payload: '', protected: '', signature: '' }, '', '');
+    if ('log' in obj && 'recipients' in obj && 'creator' in obj) {
+      let emptyLog = new SharedLog({ payload: '', protected: '', signature: '' }, [''], '');
       return Object.assign(emptyLog, obj);
     }
     throw Error(

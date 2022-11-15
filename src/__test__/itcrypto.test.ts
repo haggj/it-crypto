@@ -53,7 +53,7 @@ test('Encrypt, decrypt and sign data', async () => {
   let jwe = await itCrypto.encrypt(log, [receiver]);
 
   // Receiver logs in and decrypts data via ItCrypto interface
-  await itCrypto.login(sender.id, TestKeys.pubB, TestKeys.pubB, TestKeys.privB, TestKeys.privB);
+  await itCrypto.login(receiver.id, TestKeys.pubB, TestKeys.pubB, TestKeys.privB, TestKeys.privB);
 
   // Decrypting logs
   let rec1 = await itCrypto.decrypt(jwe);

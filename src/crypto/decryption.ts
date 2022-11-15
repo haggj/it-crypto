@@ -1,7 +1,6 @@
-import { FlattenedJWSInput, flattenedVerify, generalDecrypt, GeneralJWE } from 'jose';
+import { FlattenedJWSInput, flattenedVerify, generalDecrypt } from 'jose';
 import { AccessLog, SignedAccessLog } from '../logs/accessLog';
 import { SharedLog } from '../logs/sharedLog';
-import { SharedHeader } from '../logs/sharedHeader';
 import { Buffer } from '../globals';
 import { RemoteUser } from '../user/remoteUser';
 import { AuthenticatedUser } from '../user/authenticatedUser';
@@ -52,14 +51,12 @@ export class DecryptionService {
     const decryptionResult = await generalDecrypt(jweObj, receiver.decryptionKey);
     const plaintext = new TextDecoder().decode(decryptionResult.plaintext);
 
-    // Parse the included jwsSharedHeader and jwsSharedLog objects
-    const jwsSharedHeader = decryptionResult.protectedHeader!.sharedHeader as FlattenedJWSInput;
+    // Parse the included jwsSharedLog object
     const jwsSharedLog = JSON.parse(plaintext) as FlattenedJWSInput;
 
     // Extract the creator specified within the SharedLog.
-    // Both, the SharedLog and the SharedHeader, are expected to be signed by this creator.
+    // The SharedLog is expected to be signed by this creator.
     const creator = await fetchUser(DecryptionService._claimedCreator(jwsSharedLog));
-    const sharedHeader = await DecryptionService._verifySharedHeader(jwsSharedHeader, creator);
     const sharedLog = await DecryptionService._verifySharedLog(jwsSharedLog, creator);
 
     // Extract the monitor specified within the AccessLog.
@@ -68,33 +65,31 @@ export class DecryptionService {
     const monitor = await fetchUser(DecryptionService._claimedMonitor(jwsAccessLog));
     const accessLog = await DecryptionService._verifyAccessLog(jwsAccessLog, monitor);
 
-    /*
-     Invariants, which need to hold:
-     1. AccessLog.owner == SharedHeader.owner
-     2. SharedLog.creator == AccessLog.monitor || SharedLog.creator == AccessLog.owner
-     3. SharedHeader.shareId = SharedLog.shareId
-    */
-
-    // Verify if shareIds are identical
-    if (sharedHeader.shareId !== sharedLog.shareId) {
-      throw new Error('Malformed data: ShareIds do not match!');
+    // Verify that the recipients in the SharedLog are equal to the recipients in the metadata
+    const metaRecipients = decryptionResult.protectedHeader!.recipients as string[];
+    if (sharedLog.recipients.toString() !== metaRecipients.toString()) {
+      throw new Error('Malformed data: Sets of recipients are not equal!');
     }
 
-    // Verify if sharedHeader contains correct owner
-    if (accessLog.owner !== sharedHeader.owner) {
-      throw new Error(
-        'Malformed data: The owner of the AccessLog is not specified as owner in the SharedHeader!'
-      );
+    // Verify that the decrypting user is part of the recipients
+    if (!sharedLog.recipients.includes(receiver.id)) {
+      throw new Error('Malformed data: Decrypting user not specified in recipients!');
     }
 
-    // Verify if either accessLog.owner or accessLog.monitor shared the log
+    // Verify that the owner in the AccessLog is equal to the owner in the metadata
+    const metaOwner = decryptionResult.protectedHeader!.owner as string;
+    if (accessLog.owner !== metaOwner) {
+      throw new Error('Malformed data: The specified owners are not equal!');
+    }
+
+    // Verify that either accessLog.owner or accessLog.monitor shared the log
     if (!(sharedLog.creator === accessLog.monitor || sharedLog.creator === accessLog.owner)) {
       throw new Error(
         'Malformed data: Only the owner or the monitor of the AccessLog are allowed to share.'
       );
     }
     if (sharedLog.creator === accessLog.monitor) {
-      if (sharedHeader.receivers.length !== 1 || sharedHeader.receivers[0] !== accessLog.owner) {
+      if (sharedLog.recipients.length !== 1 || sharedLog.recipients[0] !== accessLog.owner) {
         throw new Error(
           'Malformed data: Monitors can only share the data with the owner of the log.'
         );
@@ -130,18 +125,6 @@ export class DecryptionService {
     let decoded = Buffer.from(jwsAccessLog.payload as string, 'base64').toString();
     let accessLog = AccessLog.fromJson(decoded);
     return accessLog.monitor;
-  }
-
-  static async _verifySharedHeader(
-    jwsSharedHeader: FlattenedJWSInput,
-    sender: RemoteUser
-  ): Promise<SharedHeader> {
-    try {
-      let vrf = await flattenedVerify(jwsSharedHeader, sender.verificationCertificate);
-      return SharedHeader.fromBytes(vrf.payload);
-    } catch (e) {
-      throw Error('Could not verify SharedHeader.');
-    }
   }
 
   static async _verifySharedLog(
