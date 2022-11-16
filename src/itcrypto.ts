@@ -58,26 +58,26 @@ export class ItCrypto {
    * @param log
    * @param receivers
    */
-  async encrypt(log: SignedAccessLog, receivers: RemoteUser[]): Promise<string> {
+  async encryptLog(log: SignedAccessLog, receivers: RemoteUser[]): Promise<string> {
     if (this.user == null) throw Error('Before you can encrypt you need to login a user.');
-    return this.user.encrypt(log, receivers);
+    return this.user.encryptLog(log, receivers);
   }
 
   /**
    * Decrypt a jwe. This requires a logged-in user.
    * @param jwe JWE token to decrypt
    */
-  async decrypt(jwe: string) {
+  async decryptLog(jwe: string) {
     if (this.user == null) throw Error('Before you can decrypt you need to login a user.');
-    return this.user.decrypt(jwe, this.fetchUser);
+    return this.user.decryptLog(jwe, this.fetchUser);
   }
 
   /**
    * Sign the provided AccessLog. This requires a logged-in user.
    * @param log AccessLog which needs to be signed
    */
-  async signAccessLog(log: AccessLog): Promise<SignedAccessLog> {
+  async signLog(log: AccessLog): Promise<SignedAccessLog> {
     if (this.user == null) throw Error('Before you can sign data you need to login a user.');
-    return this.user.signAccessLog(log);
+    return this.user.signLog(log);
   }
 }

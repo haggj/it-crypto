@@ -72,15 +72,15 @@ var log = new AccessLog(itCrypto.user!.id, 'owner', 'tool', 'jus', 30, 'direct',
   'email',
   'address',
 ]);
-var singedLog = await itCrypto.signAccessLog(log);
+var singedLog = await itCrypto.signLog(log);
 
 // The logged-in user can encrypt the logs for others.
 var owner = await UserManagement.generateAuthenticatedUser('owner');
-var jwe = await itCrypto.encrypt(singedLog, [owner]);
+var jwe = await itCrypto.encryptLog(singedLog, [owner]);
 
 // The logged-in user can decrypt logs intended for him
 itCrypto.user = owner;
-var receivedSignedLog = await itCrypto.decrypt(jwe);
+var receivedSignedLog = await itCrypto.decryptLog(jwe);
 var receivedLog = receivedSignedLog.extract();
 console.log(receivedLog);
  ```

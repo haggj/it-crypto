@@ -105,11 +105,11 @@ async function run() {
     receivers.push(receiver);
   }
 
-  let signedLog = await sender.signAccessLog(accessLog);
-  let jwe = await sender.encrypt(signedLog, receivers);
+  let signedLog = await sender.signLog(accessLog);
+  let jwe = await sender.encryptLog(signedLog, receivers);
 
   for (let rec of receivers) {
-    await rec.decrypt(jwe, createFetchSender([sender, rec]));
+    await rec.decryptLog(jwe, createFetchSender([sender, rec]));
   }
   console.log(JSON.stringify(jwe));
 }

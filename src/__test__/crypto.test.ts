@@ -40,7 +40,7 @@ test('Test if expected data is present in JWE token', async () => {
   let sender = await UserManagement.generateAuthenticatedUser();
   let receiver1 = await UserManagement.generateAuthenticatedUser();
   let receiver2 = await UserManagement.generateAuthenticatedUser();
-  let log = await sender.signAccessLog(exampleAccessLog);
+  let log = await sender.signLog(exampleAccessLog);
 
   let cipher = await EncryptionService.encrypt(log, sender, [receiver1, receiver2]);
   let jwe = JSON.parse(cipher);
@@ -55,7 +55,7 @@ test('Test if expected data is present in JWE token', async () => {
 test('Test if expected data is present in JWE protected header', async () => {
   let sender = await UserManagement.generateAuthenticatedUser();
   let receiver = await UserManagement.generateAuthenticatedUser();
-  let log = await sender.signAccessLog(exampleAccessLog);
+  let log = await sender.signLog(exampleAccessLog);
 
   let cipher = await EncryptionService.encrypt(log, sender, [receiver]);
   let jwe = JSON.parse(cipher) as GeneralJWE;
@@ -76,7 +76,7 @@ test('Test if modified JWE ciphertext is detected during decryption', async () =
   rawLog.monitor = sender.id;
   rawLog.owner = receiver.id;
   let fetchSender = createFetchSender([sender]);
-  let log = await sender.signAccessLog(rawLog);
+  let log = await sender.signLog(rawLog);
 
   let cipher = await EncryptionService.encrypt(log, sender, [receiver]);
   let original = JSON.parse(cipher);
@@ -98,7 +98,7 @@ test('Test if modified JWE protected header is detected during decryption', asyn
   rawLog.monitor = sender.id;
   rawLog.owner = receiver.id;
   let fetchSender = createFetchSender([sender]);
-  let log = await sender.signAccessLog(rawLog);
+  let log = await sender.signLog(rawLog);
 
   // Encrypt log
   let cipher = await EncryptionService.encrypt(log, sender, [receiver]);
@@ -132,7 +132,7 @@ describe('JWS tokens are signed by invalid entities', () => {
     rawLog.monitor = claimedMonitor.id;
     rawLog.owner = receiver.id;
     let fetchSender = createFetchSender([claimedMonitor, actualMonitor, receiver]);
-    let log = await actualMonitor.signAccessLog(rawLog);
+    let log = await actualMonitor.signLog(rawLog);
 
     let jwe = await EncryptionService.encrypt(log, actualMonitor, [receiver]);
     await expect(DecryptionService.decrypt(jwe, receiver, fetchSender)).rejects.toThrow(
@@ -148,7 +148,7 @@ describe('JWS tokens are signed by invalid entities', () => {
     rawLog.monitor = actualSender.id;
     rawLog.owner = receiver.id;
     let fetchSender = createFetchSender([claimedSender, actualSender, receiver]);
-    let log = await actualSender.signAccessLog(rawLog);
+    let log = await actualSender.signLog(rawLog);
 
     // Mock the internal SharedLog, which contains a creator that did not sign the SharedLog
     jest

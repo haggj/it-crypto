@@ -104,11 +104,11 @@ export class _AuthenticatedUser implements AuthenticatedUser {
     this.signingKey = signingKey;
   }
 
-  encrypt(log: SignedAccessLog, receivers: RemoteUser[]): Promise<string> {
+  encryptLog(log: SignedAccessLog, receivers: RemoteUser[]): Promise<string> {
     return EncryptionService.encrypt(log, this, receivers);
   }
 
-  decrypt(
+  decryptLog(
     jwe: string,
     fetchUser: (email: string) => Promise<RemoteUser>
   ): Promise<SignedAccessLog> {
@@ -120,7 +120,7 @@ export class _AuthenticatedUser implements AuthenticatedUser {
     return jws.setProtectedHeader({ alg: SIGNING_ALG }).sign(this.signingKey);
   }
 
-  async signAccessLog(log: AccessLog): Promise<SignedAccessLog> {
+  async signLog(log: AccessLog): Promise<SignedAccessLog> {
     let signed = await this.signData(log.asBytes());
     return new SignedAccessLog(signed);
   }

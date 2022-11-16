@@ -44,7 +44,7 @@ describe('Test compatibility with go-it-crypto', () => {
 
     let fetchUser = createFetchSender([sender, receiver]);
 
-    let signedLog = await receiver.decrypt(goDecryptB, fetchUser);
+    let signedLog = await receiver.decryptLog(goDecryptB, fetchUser);
     let accessLog = signedLog.extract();
     expect(accessLog.justification).toBe('go-it-crypto');
   });
@@ -54,11 +54,11 @@ describe('Test compatibility with go-it-crypto', () => {
 
     let fetchUser = createFetchSender([sender, receiver]);
 
-    let signedLog = await sender.decrypt(goDecryptAB, fetchUser);
+    let signedLog = await sender.decryptLog(goDecryptAB, fetchUser);
     let accessLog = signedLog.extract();
     expect(accessLog.justification).toBe('go-it-crypto');
 
-    signedLog = await receiver.decrypt(goDecryptAB, fetchUser);
+    signedLog = await receiver.decryptLog(goDecryptAB, fetchUser);
     accessLog = signedLog.extract();
     expect(accessLog.justification).toBe('go-it-crypto');
   });
@@ -71,7 +71,7 @@ describe('Test compatibility with py-it-crypto', () => {
 
     let fetchUser = createFetchSender([sender, receiver]);
 
-    let signedLog = await receiver.decrypt(pythonDecryptB, fetchUser);
+    let signedLog = await receiver.decryptLog(pythonDecryptB, fetchUser);
     let accessLog = signedLog.extract();
     expect(accessLog.justification).toBe('py-it-crypto');
   });
@@ -81,11 +81,11 @@ describe('Test compatibility with py-it-crypto', () => {
 
     let fetchUser = createFetchSender([sender, receiver]);
 
-    let signedLog = await sender.decrypt(pythonDecryptAB, fetchUser);
+    let signedLog = await sender.decryptLog(pythonDecryptAB, fetchUser);
     let accessLog = signedLog.extract();
     expect(accessLog.justification).toBe('py-it-crypto');
 
-    signedLog = await receiver.decrypt(pythonDecryptAB, fetchUser);
+    signedLog = await receiver.decryptLog(pythonDecryptAB, fetchUser);
     accessLog = signedLog.extract();
     expect(accessLog.justification).toBe('py-it-crypto');
   });
@@ -98,7 +98,7 @@ describe('Test compatibility with js-it-crypto', () => {
 
     let fetchUser = createFetchSender([sender, receiver]);
 
-    let signedLog = await receiver.decrypt(jsDecryptB, fetchUser);
+    let signedLog = await receiver.decryptLog(jsDecryptB, fetchUser);
     let accessLog = signedLog.extract();
     expect(accessLog.justification).toBe('js-it-crypto');
   });
@@ -108,11 +108,11 @@ describe('Test compatibility with js-it-crypto', () => {
 
     let fetchUser = createFetchSender([sender, receiver]);
 
-    let signedLog = await sender.decrypt(jsDecryptAB, fetchUser);
+    let signedLog = await sender.decryptLog(jsDecryptAB, fetchUser);
     let accessLog = signedLog.extract();
     expect(accessLog.justification).toBe('js-it-crypto');
 
-    signedLog = await receiver.decrypt(jsDecryptAB, fetchUser);
+    signedLog = await receiver.decryptLog(jsDecryptAB, fetchUser);
     accessLog = signedLog.extract();
     expect(accessLog.justification).toBe('js-it-crypto');
   });
@@ -122,15 +122,15 @@ test('Compute tokens for compatibility tests', async () => {
   let sender = await senderPromise;
   let receiver = await receiverPromise;
 
-  let log = await sender.signAccessLog(
+  let log = await sender.signLog(
     new AccessLog(sender.id, receiver.id, 'tool', 'js-it-crypto', 30, 'ts-it-crypto', [
       'email',
       'address',
     ])
   );
 
-  let jsDecryptB = await sender.encrypt(log, [receiver]);
-  let jsDecryptAB = await receiver.encrypt(log, [sender, receiver]);
+  let jsDecryptB = await sender.encryptLog(log, [receiver]);
+  let jsDecryptAB = await receiver.encryptLog(log, [sender, receiver]);
   console.log(jsDecryptB);
   console.log(jsDecryptAB);
 });

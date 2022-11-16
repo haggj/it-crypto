@@ -1,5 +1,5 @@
 import { RemoteUser } from './remoteUser';
-import { FlattenedJWS, GeneralJWE, KeyLike } from 'jose';
+import { FlattenedJWS, KeyLike } from 'jose';
 import { AccessLog, SignedAccessLog } from '../logs/accessLog';
 
 /**
@@ -25,14 +25,17 @@ export interface AuthenticatedUser extends RemoteUser {
    * @param log A signed access log object which needs to be encrypted.
    * @param receivers List of receivers, which can decrypt.
    */
-  encrypt(log: SignedAccessLog, receivers: RemoteUser[]): Promise<string>;
+  encryptLog(log: SignedAccessLog, receivers: RemoteUser[]): Promise<string>;
 
   /**
    * Decrypt a JWE containing a SingedAccessLog.
    * @param jwe The JWE token to decrypt.
    * @param fetchSender A function which maps the ID of a user to a RemoteUser object.
    */
-  decrypt(jwe: string, fetchSender: (id: string) => Promise<RemoteUser>): Promise<SignedAccessLog>;
+  decryptLog(
+    jwe: string,
+    fetchSender: (id: string) => Promise<RemoteUser>
+  ): Promise<SignedAccessLog>;
 
   /**
    * Cryptographically sign the provided data.
@@ -44,5 +47,5 @@ export interface AuthenticatedUser extends RemoteUser {
    * Cryptographically sign a raw AccessLog object.
    * @param log The AccessLog to sign.
    */
-  signAccessLog(log: AccessLog): Promise<SignedAccessLog>;
+  signLog(log: AccessLog): Promise<SignedAccessLog>;
 }

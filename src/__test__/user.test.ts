@@ -11,11 +11,11 @@ test('Generate users and encrypt/decrypt data for single receiver', async () => 
   let receiver = await UserManagement.generateAuthenticatedUser();
   let fetchUser = createFetchSender([sender, receiver]);
 
-  let sentLog = await sender.signAccessLog(
+  let sentLog = await sender.signLog(
     new AccessLog(sender.id, receiver.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
   );
-  let cipher = await sender.encrypt(sentLog, [receiver]);
-  let receivedLog = await receiver.decrypt(cipher, fetchUser);
+  let cipher = await sender.encryptLog(sentLog, [receiver]);
+  let receivedLog = await receiver.decryptLog(cipher, fetchUser);
 
   expect(AccessLog.fromFlattenedJWS(sentLog).asJson()).toBe(receivedLog.extract().asJson());
 });
@@ -29,26 +29,28 @@ test('Generate users and send data to multiple receivers.', async () => {
   let fetchSender = createFetchSender([monitor, owner, receiver, noReceiver]);
 
   // 1. Step: Monitor creates log and encrypts it for owner
-  let signedLog = await monitor.signAccessLog(
+  let signedLog = await monitor.signLog(
     new AccessLog(monitor.id, owner.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
   );
-  let jwe = await monitor.encrypt(signedLog, [owner]);
+  let jwe = await monitor.encryptLog(signedLog, [owner]);
 
   // 2. Step: Owner can decrypt log
-  let receivedLog1 = await owner.decrypt(jwe, fetchSender);
+  let receivedLog1 = await owner.decryptLog(jwe, fetchSender);
   expect(AccessLog.fromFlattenedJWS(signedLog).asJson()).toBe(receivedLog1.extract().asJson());
 
   // 3. Step: Owner shares with receivers
-  jwe = await owner.encrypt(receivedLog1, [owner, receiver]);
+  jwe = await owner.encryptLog(receivedLog1, [owner, receiver]);
 
   // 4. Step: Owner and receiver can decrypt
-  let receivedLog2 = await owner.decrypt(jwe, fetchSender);
-  let receivedLog3 = await receiver.decrypt(jwe, fetchSender);
+  let receivedLog2 = await owner.decryptLog(jwe, fetchSender);
+  let receivedLog3 = await receiver.decryptLog(jwe, fetchSender);
   expect(AccessLog.fromFlattenedJWS(signedLog).asJson()).toBe(receivedLog2.extract().asJson());
   expect(AccessLog.fromFlattenedJWS(signedLog).asJson()).toBe(receivedLog3.extract().asJson());
 
   // Decrypting data at noReceiver throws error
-  await expect(noReceiver.decrypt(jwe, fetchSender)).rejects.toThrow('decryption operation failed');
+  await expect(noReceiver.decryptLog(jwe, fetchSender)).rejects.toThrow(
+    'decryption operation failed'
+  );
 });
 
 test('Import users based on X509 certificates and PCKS8 private keys', async () => {
@@ -71,15 +73,15 @@ test('Import users based on X509 certificates and PCKS8 private keys', async () 
   );
   let fetchUser = createFetchSender([sender, receiver]);
 
-  let sentLog = await sender.signAccessLog(
+  let sentLog = await sender.signLog(
     new AccessLog(sender.id, receiver.id, 'tool', 'js-it-crypto', 30, 'aggregation', [
       'email',
       'address',
     ])
   );
-  let cipher = await receiver.encrypt(sentLog, [receiver, sender]);
+  let cipher = await receiver.encryptLog(sentLog, [receiver, sender]);
 
-  let receivedLog = await receiver.decrypt(cipher, fetchUser);
+  let receivedLog = await receiver.decryptLog(cipher, fetchUser);
 
   expect(AccessLog.fromFlattenedJWS(sentLog).asJson()).toBe(receivedLog.extract().asJson());
 });
@@ -109,10 +111,10 @@ test('Import remote User with CA signed keys', async () => {
 
   let sender = await UserManagement.generateAuthenticatedUser();
 
-  let sentLog = await sender.signAccessLog(
+  let sentLog = await sender.signLog(
     new AccessLog(sender.id, receiver.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
   );
-  await sender.encrypt(sentLog, [receiver]);
+  await sender.encryptLog(sentLog, [receiver]);
 });
 
 test('Import remote User with CA signed keys fails', async () => {
