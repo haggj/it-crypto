@@ -76,6 +76,8 @@ test('Test if modified JWE ciphertext is detected during decryption', async () =
   rawLog.monitor = sender.id;
   rawLog.owner = receiver.id;
   let fetchSender = createFetchSender([sender]);
+
+  sender.isMonitor = true;
   let log = await sender.signLog(rawLog);
 
   let cipher = await EncryptionService.encrypt(log, sender, [receiver]);
@@ -98,6 +100,8 @@ test('Test if modified JWE protected header is detected during decryption', asyn
   rawLog.monitor = sender.id;
   rawLog.owner = receiver.id;
   let fetchSender = createFetchSender([sender]);
+
+  sender.isMonitor = true;
   let log = await sender.signLog(rawLog);
 
   // Encrypt log
@@ -132,6 +136,9 @@ describe('JWS tokens are signed by invalid entities', () => {
     rawLog.monitor = claimedMonitor.id;
     rawLog.owner = receiver.id;
     let fetchSender = createFetchSender([claimedMonitor, actualMonitor, receiver]);
+
+    claimedMonitor.isMonitor = true;
+    actualMonitor.isMonitor = true;
     let log = await actualMonitor.signLog(rawLog);
 
     let jwe = await EncryptionService.encrypt(log, actualMonitor, [receiver]);

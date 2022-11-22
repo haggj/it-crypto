@@ -21,6 +21,7 @@ export class UserManagement {
     id: string,
     encryptionCertificate: string,
     verificationCertificate: string,
+    isMonitor: boolean,
     trustedCaCertificate: string
   ): Promise<RemoteUser> {
     let caCert: Certificate = pemToCertificate(trustedCaCertificate);
@@ -34,6 +35,7 @@ export class UserManagement {
       id: id,
       encryptionCertificate: await importX509(encryptionCertificate, KEY_WRAP_ALG),
       verificationCertificate: await importX509(verificationCertificate, SIGNING_ALG),
+      isMonitor: isMonitor,
     } as RemoteUser;
   }
 
@@ -44,6 +46,7 @@ export class UserManagement {
       id: uuidv4(),
       encryptionCertificate: encryptionKeys.publicKey,
       verificationCertificate: signingKeys.publicKey,
+      isMonitor: false,
     } as RemoteUser;
   }
 
@@ -89,6 +92,7 @@ export class _AuthenticatedUser implements AuthenticatedUser {
   verificationCertificate: KeyLike;
   decryptionKey: KeyLike;
   signingKey: KeyLike;
+  isMonitor: boolean;
 
   constructor(
     id: string,
@@ -102,6 +106,7 @@ export class _AuthenticatedUser implements AuthenticatedUser {
     this.verificationCertificate = verificationCertificate;
     this.decryptionKey = decryptionKey;
     this.signingKey = signingKey;
+    this.isMonitor = false;
   }
 
   encryptLog(log: SignedAccessLog, receivers: RemoteUser[]): Promise<string> {

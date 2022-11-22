@@ -25,4 +25,9 @@ export interface RemoteUser {
    * Public key to verify data signed by the remote user.
    */
   verificationCertificate: KeyLike;
+
+  /**
+   * Indicates if the remote user is legitimate monitor.
+   */
+  isMonitor: boolean;
 }

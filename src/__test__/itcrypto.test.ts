@@ -47,6 +47,7 @@ test('Encrypt, decrypt and sign data', async () => {
   // Monitor logs in, sings and encrypts data via ItCrypto interface
   let itCrypto = new ItCrypto(fetchUser);
   await itCrypto.login(sender.id, TestKeys.pubA, TestKeys.pubA, TestKeys.privA, TestKeys.privA);
+  sender.isMonitor = true;
   let log = await itCrypto.signLog(
     new AccessLog(sender.id, receiver.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
   );

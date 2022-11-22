@@ -143,6 +143,10 @@ export class DecryptionService {
     jwsAccessLog: FlattenedJWSInput,
     sender: RemoteUser
   ): Promise<AccessLog> {
+    if (!sender.isMonitor) {
+      throw Error('Claimed monitor is not authorized to sign logs.');
+    }
+
     try {
       let vrf = await flattenedVerify(jwsAccessLog, sender.verificationCertificate);
       return AccessLog.fromBytes(vrf.payload);

@@ -40,6 +40,7 @@ let receiverPromise = UserManagement.importAuthenticatedUser(
 describe('Test compatibility with go-it-crypto', () => {
   test('Decrypt JWE for single receiver', async () => {
     let sender = await senderPromise;
+    sender.isMonitor = true;
     let receiver = await receiverPromise;
 
     let fetchUser = createFetchSender([sender, receiver]);
@@ -50,6 +51,7 @@ describe('Test compatibility with go-it-crypto', () => {
   });
   test('Decrypt JWE for multiple receivers', async () => {
     let sender = await senderPromise;
+    sender.isMonitor = true;
     let receiver = await receiverPromise;
 
     let fetchUser = createFetchSender([sender, receiver]);
@@ -67,6 +69,7 @@ describe('Test compatibility with go-it-crypto', () => {
 describe('Test compatibility with py-it-crypto', () => {
   test('Decrypt JWE for single receiver', async () => {
     let sender = await senderPromise;
+    sender.isMonitor = true;
     let receiver = await receiverPromise;
 
     let fetchUser = createFetchSender([sender, receiver]);
@@ -77,6 +80,7 @@ describe('Test compatibility with py-it-crypto', () => {
   });
   test('Decrypt JWE for multiple receivers', async () => {
     let sender = await senderPromise;
+    sender.isMonitor = true;
     let receiver = await receiverPromise;
 
     let fetchUser = createFetchSender([sender, receiver]);
@@ -94,6 +98,7 @@ describe('Test compatibility with py-it-crypto', () => {
 describe('Test compatibility with js-it-crypto', () => {
   test('Decrypt JWE for single receiver', async () => {
     let sender = await senderPromise;
+    sender.isMonitor = true;
     let receiver = await receiverPromise;
 
     let fetchUser = createFetchSender([sender, receiver]);
@@ -104,6 +109,7 @@ describe('Test compatibility with js-it-crypto', () => {
   });
   test('Decrypt JWE for multiple receivers', async () => {
     let sender = await senderPromise;
+    sender.isMonitor = true;
     let receiver = await receiverPromise;
 
     let fetchUser = createFetchSender([sender, receiver]);

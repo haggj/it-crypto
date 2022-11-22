@@ -58,7 +58,7 @@ function fetchUser(id: string): Promise<RemoteUser> {
    * Usually this function requests your API to fetch user keys.
    */
   if (id == 'monitor') {
-    return UserManagement.importRemoteUser(id, pubA, pubA, pubCa);
+    return UserManagement.importRemoteUser(id, pubA, pubA, true, pubCa);
   }
   throw Error('User not found');
 }

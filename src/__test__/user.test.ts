@@ -11,6 +11,7 @@ test('Generate users and encrypt/decrypt data for single receiver', async () => 
   let receiver = await UserManagement.generateAuthenticatedUser();
   let fetchUser = createFetchSender([sender, receiver]);
 
+  sender.isMonitor = true;
   let sentLog = await sender.signLog(
     new AccessLog(sender.id, receiver.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
   );
@@ -29,6 +30,7 @@ test('Generate users and send data to multiple receivers.', async () => {
   let fetchSender = createFetchSender([monitor, owner, receiver, noReceiver]);
 
   // 1. Step: Monitor creates log and encrypts it for owner
+  monitor.isMonitor = true;
   let signedLog = await monitor.signLog(
     new AccessLog(monitor.id, owner.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
   );
@@ -73,6 +75,7 @@ test('Import users based on X509 certificates and PCKS8 private keys', async () 
   );
   let fetchUser = createFetchSender([sender, receiver]);
 
+  sender.isMonitor = true;
   let sentLog = await sender.signLog(
     new AccessLog(sender.id, receiver.id, 'tool', 'js-it-crypto', 30, 'aggregation', [
       'email',
@@ -106,6 +109,7 @@ test('Import remote User with CA signed keys', async () => {
     v4(),
     encryptionCertificate,
     verificationCertificate,
+    false,
     caCertificate
   );
 
@@ -131,6 +135,7 @@ test('Import remote User with CA signed keys fails', async () => {
     v4(),
     TestKeys.pubB,
     TestKeys.pubB,
+    false,
     TestKeys.pubA
   );
   // Importing this user throws error because pubA did not sign pubB
