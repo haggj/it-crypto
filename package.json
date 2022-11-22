@@ -1,7 +1,7 @@
 {
   "name": "ts-it-crypto",
   "author": "Jonas Hagg",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "E2EE for the inverse transparency toolchain",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

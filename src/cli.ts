@@ -105,6 +105,7 @@ async function run() {
     receivers.push(receiver);
   }
 
+  sender.isMonitor = true;
   let signedLog = await sender.signLog(accessLog);
   let jwe = await sender.encryptLog(signedLog, receivers);
 
