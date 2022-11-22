@@ -111,7 +111,7 @@ async function run() {
   for (let rec of receivers) {
     await rec.decryptLog(jwe, createFetchSender([sender, rec]));
   }
-  console.log(JSON.stringify(jwe));
+  console.log(jwe);
 }
 
 run();
