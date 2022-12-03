@@ -1,14 +1,15 @@
 import { FlattenedJWSInput, flattenedVerify, generalDecrypt } from 'jose';
-import { AccessLog, SignedAccessLog } from '../logs/accessLog';
+import { AccessLog } from '../logs/accessLog';
 import { SharedLog } from '../logs/sharedLog';
 import { Buffer } from '../globals';
 import { RemoteUser } from '../user/remoteUser';
 import { AuthenticatedUser } from '../user/authenticatedUser';
+import { SignedLog } from '../logs/signedLog';
 
 export class DecryptionService {
   /**
    * Decrypts a given JWE token by means of the Inverse Transparency E2EE.
-   * This function returns a SignedAccessLog if all verification steps are successful.
+   * This function returns a SignedLog if all verification steps are successful.
    *
    * Structure of the GeneralDecryptResult:
    *          {
@@ -21,14 +22,14 @@ export class DecryptionService {
    *          }
    *
    * @param jwe: JWE token which stores the encrypted AccessLog along with other sharing information.
-   * @param receiver: The AuthenticatedUser object, that decrypts the JWE token.
+   * @param receiver: The AuthenticatedUser object that decrypts the JWE token.
    * @param fetchUser: A function which resolves the id of a user to a RemoteUser object.
    */
   static async decrypt(
     jwe: string,
     receiver: AuthenticatedUser,
     fetchUser: (id: string) => Promise<RemoteUser>
-  ): Promise<SignedAccessLog> {
+  ): Promise<SignedLog> {
     // Parse and decrypt the given JWE
     const jweObj = JSON.parse(jwe);
 
@@ -99,7 +100,7 @@ export class DecryptionService {
       }
     }
 
-    return new SignedAccessLog(jwsAccessLog);
+    return new SignedLog(jwsAccessLog);
   }
 
   /**
@@ -108,7 +109,7 @@ export class DecryptionService {
    *
    * *NOTE*: This function does not verify the FlattenedJWSInput by any means.
    *
-   * @param jwsSharedLog
+   * @param jwsSharedLog The JWS token which contains the SharedLog.
    */
   static _claimedCreator(jwsSharedLog: FlattenedJWSInput) {
     const rawJson = Buffer.from(jwsSharedLog.payload as string, 'base64').toString();

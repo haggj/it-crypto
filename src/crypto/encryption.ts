@@ -1,20 +1,24 @@
 import { GeneralEncrypt } from 'jose';
-import { AccessLog, SignedAccessLog } from '../logs/accessLog';
+import { AccessLog } from '../logs/accessLog';
 import { SharedLog } from '../logs/sharedLog';
 import { RemoteUser } from '../user/remoteUser';
 import { AuthenticatedUser } from '../user/authenticatedUser';
 import { KEY_WRAP_ALG, ENCRYPTION_ALG } from '../globals';
+import { SignedLog } from '../logs/signedLog';
 
 export class EncryptionService {
   /**
-   * Encrypts a given SingedAccessLog for the specified set of receivers.
+   * Encrypts a given SingedLog for the specified set of receivers in the name of the passed sender.
    * This function might be used either by a monitor (which initially encrypts the log for the owner)
    * or by the owner (which wants to share the AccessLog with others).
    *
-   * The provided SingedAccessLog is assumed to be signed by a monitor.
+   * The provided SingedLog is assumed to be signed by a monitor.
+   * @param jwsSingedLog The SingedLog which needs to be encrypted.
+   * @param sender  The user which encrypts the data.
+   * @param receivers  The set of receivers the data is encrypted for.
    */
   static async encrypt(
-    jwsAccessLog: SignedAccessLog,
+    jwsSingedLog: SignedLog,
     sender: AuthenticatedUser,
     receivers: RemoteUser[]
   ): Promise<string> {
@@ -22,7 +26,7 @@ export class EncryptionService {
     receivers.forEach((receiver) => receiverIds.push(receiver.id));
 
     // Embed signed AccessLog into a SharedLog object and sign this object -> jwsSharedLog
-    const sharedLog = new SharedLog(jwsAccessLog, receiverIds, sender.id);
+    const sharedLog = new SharedLog(jwsSingedLog, receiverIds, sender.id);
     const jwsSharedLog = await sender.signData(sharedLog.asBytes());
 
     // Sender creates the encrypted JWE
@@ -31,7 +35,7 @@ export class EncryptionService {
     ).setProtectedHeader({
       enc: ENCRYPTION_ALG,
       recipients: receiverIds,
-      owner: AccessLog.fromFlattenedJWS(jwsAccessLog).owner,
+      owner: AccessLog.fromFlattenedJWS(jwsSingedLog).owner,
     });
 
     for (const receiver of receivers) {

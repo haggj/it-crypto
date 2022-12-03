@@ -9,12 +9,13 @@ import {
 import { KEY_WRAP_ALG, SIGNING_ALG } from '../globals';
 import { v4 as uuidv4 } from 'uuid';
 import { EncryptionService } from '../crypto/encryption';
-import { AccessLog, SignedAccessLog } from '../logs/accessLog';
+import { AccessLog } from '../logs/accessLog';
 import { DecryptionService } from '../crypto/decryption';
 import { pemToCertificate } from '../utils/parseCertificate';
 import { Certificate } from 'pkijs';
 import { RemoteUser } from './remoteUser';
 import { AuthenticatedUser } from './authenticatedUser';
+import { SignedLog } from '../logs/signedLog';
 
 /**
  * Provides convenient functions to simplify the handling of users.
@@ -136,14 +137,11 @@ export class _AuthenticatedUser implements AuthenticatedUser {
     this.isMonitor = false;
   }
 
-  encryptLog(log: SignedAccessLog, receivers: RemoteUser[]): Promise<string> {
+  encryptLog(log: SignedLog, receivers: RemoteUser[]): Promise<string> {
     return EncryptionService.encrypt(log, this, receivers);
   }
 
-  decryptLog(
-    jwe: string,
-    fetchUser: (email: string) => Promise<RemoteUser>
-  ): Promise<SignedAccessLog> {
+  decryptLog(jwe: string, fetchUser: (email: string) => Promise<RemoteUser>): Promise<SignedLog> {
     return DecryptionService.decrypt(jwe, this, fetchUser);
   }
 
@@ -152,8 +150,8 @@ export class _AuthenticatedUser implements AuthenticatedUser {
     return jws.setProtectedHeader({ alg: SIGNING_ALG }).sign(this.signingKey);
   }
 
-  async signLog(log: AccessLog): Promise<SignedAccessLog> {
+  async signLog(log: AccessLog): Promise<SignedLog> {
     const signed = await this.signData(log.asBytes());
-    return new SignedAccessLog(signed);
+    return new SignedLog(signed);
   }
 }
