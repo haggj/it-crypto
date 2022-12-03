@@ -6,18 +6,17 @@ import { KEY_WRAP_ALG, SIGNING_ALG } from './globals';
 import { AccessLog } from './logs/accessLog';
 import { UserManagement } from './user/user';
 import { AuthenticatedUser } from './user/authenticatedUser';
+import { ArgumentParser } from 'argparse';
 
-const { ArgumentParser } = require('argparse');
-const { version } = require('../package.json');
-var Buffer = require('buffer/').Buffer;
+import { version } from '../package.json';
 
 const parser = new ArgumentParser({
   description:
-    'Inverse transparency crypto cli. This tool allows you to sign and encrypt AccessLogs for multiple receivers.',
+    'Inverse Transparency crypto cli. This tool allows you to sign and encrypt logs for multiple receivers.',
 });
 
 parser.add_argument('log', {
-  help: 'JSON encoded AccessLog. This Log will be singed and encrypted by the sender.',
+  help: 'JSON encoded log. This Log will be singed and encrypted by the sender.',
 });
 parser.add_argument('sender', {
   help: 'Monitor as JSON encode string: {"id": ..., "signingKey": ...}.',
@@ -32,12 +31,17 @@ parser.add_argument('-v', '--version', {
   version,
 });
 
-let args = parser.parse_args();
+const args = parser.parse_args();
 
 function decodeb64(input: string) {
   return Buffer.from(input, 'base64').toString();
 }
 
+/**
+ * Parse the provided json-encoded log into a AccessLog object.
+ * Returns null on failure.
+ * @param json The json-encoded log.
+ */
 function parse_log(json: string): AccessLog | null {
   try {
     return AccessLog.fromJson(json);
@@ -48,11 +52,16 @@ function parse_log(json: string): AccessLog | null {
   }
 }
 
+/**
+ * Parse the provided json-encoded sender into a AuthenticatedUser object.
+ * Note: This function does not check if the provided certificates are valid.
+ * @param json The json-encoded sender.
+ */
 async function parse_sender(json: string) {
   try {
-    let obj = JSON.parse(json);
+    const obj = JSON.parse(json);
     if ('id' in obj && 'signingKey' in obj) {
-      let user = await UserManagement.generateAuthenticatedUser();
+      const user = await UserManagement.generateAuthenticatedUser();
       user.id = obj.id;
       user.signingKey = await importPKCS8(decodeb64(obj.signingKey), SIGNING_ALG);
       user.verificationCertificate = await importX509(
@@ -68,11 +77,16 @@ async function parse_sender(json: string) {
   }
 }
 
+/**
+ * Parse the provided json-encoded receiver into a RemoteUser object.
+ * Note: This function does not check if the provided certificates are valid.
+ * @param json The json-encoded receiver.
+ */
 async function parse_receiver(json: string) {
   try {
-    let obj = JSON.parse(json);
+    const obj = JSON.parse(json);
     if ('id' in obj && 'encryptionCertificate' in obj) {
-      let user = await UserManagement.generateAuthenticatedUser();
+      const user = await UserManagement.generateAuthenticatedUser();
       user.id = obj.id;
       user.encryptionCertificate = await importX509(
         decodeb64(obj.encryptionCertificate),
@@ -88,28 +102,31 @@ async function parse_receiver(json: string) {
   }
 }
 
+/**
+ * Run the CLI. This function signs the provided log and encrypts it for the specified receivers.
+ */
 async function run() {
   // Parse log
-  let accessLog = parse_log(args.log);
+  const accessLog = parse_log(args.log);
   if (!accessLog) return;
 
   // Parse sender
-  let sender = await parse_sender(args.sender);
+  const sender = await parse_sender(args.sender);
   if (!sender) return;
 
   // Parse receivers
-  let receivers: AuthenticatedUser[] = [];
-  for (const [index, json] of args.receiver.entries()) {
-    let receiver = await parse_receiver(json);
+  const receivers: AuthenticatedUser[] = [];
+  for (const [, json] of args.receiver.entries()) {
+    const receiver = await parse_receiver(json);
     if (!receiver) return;
     receivers.push(receiver);
   }
 
   sender.isMonitor = true;
-  let signedLog = await sender.signLog(accessLog);
-  let jwe = await sender.encryptLog(signedLog, receivers);
+  const signedLog = await sender.signLog(accessLog);
+  const jwe = await sender.encryptLog(signedLog, receivers);
 
-  for (let rec of receivers) {
+  for (const rec of receivers) {
     await rec.decryptLog(jwe, createFetchSender([sender, rec]));
   }
   console.log(jwe);

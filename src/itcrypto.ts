@@ -5,20 +5,7 @@ import { AuthenticatedUser } from './user/authenticatedUser';
 
 /**
  * The ItCrypto class provides convenient wrappers around the internal crypto operations.
- *
- * Usage:
- *
- * const fetchUser = function (id) {
- * // Resolve ID to public certificates of user
- *  encryptionCert = ...
- *  verificationCert = ...
- *  return new RemoteUser(encryptionCert, verificationCert)
- * }
- *
- * crypto = ItCrypto(fetchUser)
- * crypto.login()
- * crypto.encrypt()
- * crypto.decrypt()
+ * It can be used to sign, encrypt and decrypt logs.
  */
 export class ItCrypto {
   user: AuthenticatedUser | null = null;
@@ -54,9 +41,10 @@ export class ItCrypto {
   }
 
   /**
-   * Encrypt a SignedAccessLog. This requires a logged-in user.
-   * @param log
-   * @param receivers
+   * Encrypt a log. The log must be singed by a monitor. This requires a logged-in user.
+   * The function returns a JWE token as string.
+   * @param log The SignedAccessLog is a log which is signed by a monitor.
+   * @param receivers The list of receivers who can decrypt the log.
    */
   async encryptLog(log: SignedAccessLog, receivers: RemoteUser[]): Promise<string> {
     if (this.user == null) throw Error('Before you can encrypt you need to login a user.');
@@ -64,8 +52,8 @@ export class ItCrypto {
   }
 
   /**
-   * Decrypt a jwe. This requires a logged-in user.
-   * @param jwe JWE token to decrypt
+   * Decrypt the given JWE token. This requires a logged-in user.
+   * @param jwe JWE token to decrypt.
    */
   async decryptLog(jwe: string) {
     if (this.user == null) throw Error('Before you can decrypt you need to login a user.');
@@ -73,7 +61,7 @@ export class ItCrypto {
   }
 
   /**
-   * Sign the provided AccessLog. This requires a logged-in user.
+   * Sign the provided raw log data. This requires a logged-in user.
    * @param log AccessLog which needs to be signed
    */
   async signLog(log: AccessLog): Promise<SignedAccessLog> {

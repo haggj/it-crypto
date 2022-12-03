@@ -2,50 +2,50 @@ import { v4 } from 'uuid';
 import { AccessLog } from '../logs/accessLog';
 import { UserManagement } from '../user/user';
 import { createFetchSender } from '../utils/fetchSender';
-import { Crypto } from '@peculiar/webcrypto';
 import { setEngine } from 'pkijs';
 import { TestKeys } from './utils';
+import { Crypto } from '@peculiar/webcrypto';
 
 test('Generate users and encrypt/decrypt data for single receiver', async () => {
-  let sender = await UserManagement.generateAuthenticatedUser();
-  let receiver = await UserManagement.generateAuthenticatedUser();
-  let fetchUser = createFetchSender([sender, receiver]);
+  const sender = await UserManagement.generateAuthenticatedUser();
+  const receiver = await UserManagement.generateAuthenticatedUser();
+  const fetchUser = createFetchSender([sender, receiver]);
 
   sender.isMonitor = true;
-  let sentLog = await sender.signLog(
+  const sentLog = await sender.signLog(
     new AccessLog(sender.id, receiver.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
   );
-  let cipher = await sender.encryptLog(sentLog, [receiver]);
-  let receivedLog = await receiver.decryptLog(cipher, fetchUser);
+  const cipher = await sender.encryptLog(sentLog, [receiver]);
+  const receivedLog = await receiver.decryptLog(cipher, fetchUser);
 
   expect(AccessLog.fromFlattenedJWS(sentLog).asJson()).toBe(receivedLog.extract().asJson());
 });
 
 test('Generate users and send data to multiple receivers.', async () => {
   // Setup Users
-  let monitor = await UserManagement.generateAuthenticatedUser();
-  let owner = await UserManagement.generateAuthenticatedUser();
-  let receiver = await UserManagement.generateAuthenticatedUser();
-  let noReceiver = await UserManagement.generateAuthenticatedUser();
-  let fetchSender = createFetchSender([monitor, owner, receiver, noReceiver]);
+  const monitor = await UserManagement.generateAuthenticatedUser();
+  const owner = await UserManagement.generateAuthenticatedUser();
+  const receiver = await UserManagement.generateAuthenticatedUser();
+  const noReceiver = await UserManagement.generateAuthenticatedUser();
+  const fetchSender = createFetchSender([monitor, owner, receiver, noReceiver]);
 
   // 1. Step: Monitor creates log and encrypts it for owner
   monitor.isMonitor = true;
-  let signedLog = await monitor.signLog(
+  const signedLog = await monitor.signLog(
     new AccessLog(monitor.id, owner.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
   );
   let jwe = await monitor.encryptLog(signedLog, [owner]);
 
   // 2. Step: Owner can decrypt log
-  let receivedLog1 = await owner.decryptLog(jwe, fetchSender);
+  const receivedLog1 = await owner.decryptLog(jwe, fetchSender);
   expect(AccessLog.fromFlattenedJWS(signedLog).asJson()).toBe(receivedLog1.extract().asJson());
 
   // 3. Step: Owner shares with receivers
   jwe = await owner.encryptLog(receivedLog1, [owner, receiver]);
 
   // 4. Step: Owner and receiver can decrypt
-  let receivedLog2 = await owner.decryptLog(jwe, fetchSender);
-  let receivedLog3 = await receiver.decryptLog(jwe, fetchSender);
+  const receivedLog2 = await owner.decryptLog(jwe, fetchSender);
+  const receivedLog3 = await receiver.decryptLog(jwe, fetchSender);
   expect(AccessLog.fromFlattenedJWS(signedLog).asJson()).toBe(receivedLog2.extract().asJson());
   expect(AccessLog.fromFlattenedJWS(signedLog).asJson()).toBe(receivedLog3.extract().asJson());
 
@@ -57,7 +57,7 @@ test('Generate users and send data to multiple receivers.', async () => {
 
 test('Import users based on X509 certificates and PCKS8 private keys', async () => {
   // This user uses the same key pair for encryption and signing
-  let sender = await UserManagement.importAuthenticatedUser(
+  const sender = await UserManagement.importAuthenticatedUser(
     'sender',
     TestKeys.pubA,
     TestKeys.pubA,
@@ -66,25 +66,25 @@ test('Import users based on X509 certificates and PCKS8 private keys', async () 
   );
 
   // This user uses the same key pair for encryption and signing
-  let receiver = await UserManagement.importAuthenticatedUser(
+  const receiver = await UserManagement.importAuthenticatedUser(
     'receiver',
     TestKeys.pubB,
     TestKeys.pubB,
     TestKeys.privB,
     TestKeys.privB
   );
-  let fetchUser = createFetchSender([sender, receiver]);
+  const fetchUser = createFetchSender([sender, receiver]);
 
   sender.isMonitor = true;
-  let sentLog = await sender.signLog(
+  const sentLog = await sender.signLog(
     new AccessLog(sender.id, receiver.id, 'tool', 'js-it-crypto', 30, 'aggregation', [
       'email',
       'address',
     ])
   );
-  let cipher = await receiver.encryptLog(sentLog, [receiver, sender]);
+  const cipher = await receiver.encryptLog(sentLog, [receiver, sender]);
 
-  let receivedLog = await receiver.decryptLog(cipher, fetchUser);
+  const receivedLog = await receiver.decryptLog(cipher, fetchUser);
 
   expect(AccessLog.fromFlattenedJWS(sentLog).asJson()).toBe(receivedLog.extract().asJson());
 });
@@ -96,16 +96,15 @@ test('Import remote User with CA signed keys', async () => {
   const verificationCertificate = TestKeys.pubA;
 
   /*
-  PKIJS requires Crypto engine if not running in browser
+  PKIJS requires Crypto engine if not running in browser.
   The node native webcrypto engine (import {webcrypto} from "crypto") does not implement
   the correct interface, this is why @peculiar/webcrypto dependency was added.
   */
-  const { Crypto } = require('@peculiar/webcrypto');
-  let crypto = new Crypto();
+  const crypto = new Crypto();
   setEngine('newEngine', crypto, crypto.subtle);
 
   // import remote user which internally verifies if encryption and verification certificate are signed by CA
-  let receiver = await UserManagement.importRemoteUser(
+  const receiver = await UserManagement.importRemoteUser(
     v4(),
     encryptionCertificate,
     verificationCertificate,
@@ -113,9 +112,9 @@ test('Import remote User with CA signed keys', async () => {
     caCertificate
   );
 
-  let sender = await UserManagement.generateAuthenticatedUser();
+  const sender = await UserManagement.generateAuthenticatedUser();
 
-  let sentLog = await sender.signLog(
+  const sentLog = await sender.signLog(
     new AccessLog(sender.id, receiver.id, 'tool', 'jus', 30, 'aggregation', ['email', 'address'])
   );
   await sender.encryptLog(sentLog, [receiver]);
@@ -123,15 +122,14 @@ test('Import remote User with CA signed keys', async () => {
 
 test('Import remote User with CA signed keys fails', async () => {
   /*
-  PKIJS requires Crypto engine if not running in browser
+  PKIJS requires Crypto engine if not running in browser.
   The node native webcrypto engine (import {webcrypto} from "crypto") does not implement
   the correct interface, this is why @peculiar/webcrypto dependency was added.
   */
-  const { Crypto } = require('@peculiar/webcrypto');
-  let crypto = new Crypto();
+  const crypto = new Crypto();
   setEngine('newEngine', crypto, crypto.subtle);
 
-  let receiverPromise = UserManagement.importRemoteUser(
+  const receiverPromise = UserManagement.importRemoteUser(
     v4(),
     TestKeys.pubB,
     TestKeys.pubB,

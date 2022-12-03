@@ -1,16 +1,16 @@
-import { DecryptionService } from './crypto/decryption';
-import { EncryptionService } from './crypto/encryption';
 import { AccessLog } from './logs/accessLog';
 import { UserManagement } from './user/user';
 import { RemoteUser } from './user/remoteUser';
 import { ItCrypto } from './itcrypto';
 import { setEngine } from 'pkijs';
+import { Crypto } from '@peculiar/webcrypto';
 
-export { DecryptionService } from './crypto/decryption';
-export { EncryptionService } from './crypto/encryption';
-
-const { Crypto } = require('@peculiar/webcrypto');
-let crypto = new Crypto();
+/**
+PKIJS requires Crypto engine if not running in browser.
+The node native webcrypto engine (import {webcrypto} from "crypto") does not implement
+the correct interface, this is why @peculiar/webcrypto dependency was added.
+*/
+const crypto = new Crypto();
 setEngine('newEngine', crypto, crypto.subtle);
 
 const pubCa =
@@ -55,24 +55,21 @@ function fetchUser(id: string): Promise<RemoteUser> {
 
 export async function test() {
   // This code initializes the it-crypto library with the private key pubA and secret key privA.
-  var itCrypto = new ItCrypto(fetchUser);
+  const itCrypto = new ItCrypto(fetchUser);
   await itCrypto.login('monitor', pubA, pubA, privA, privA);
 
   // The logged-in user can create singed access logs.
-  var log = new AccessLog(itCrypto.user!.id, 'owner', 'tool', 'jus', 30, 'direct', [
-    'email',
-    'address',
-  ]);
-  var singedLog = await itCrypto.signLog(log);
+  const log = new AccessLog('monitor', 'owner', 'tool', 'jus', 30, 'direct', ['email', 'address']);
+  const singedLog = await itCrypto.signLog(log);
 
   // The logged-in user can encrypt the logs for others.
-  var owner = await UserManagement.generateAuthenticatedUser('owner');
-  var jwe = await itCrypto.encryptLog(singedLog, [owner]);
+  const owner = await UserManagement.generateAuthenticatedUser('owner');
+  const jwe = await itCrypto.encryptLog(singedLog, [owner]);
 
   // The logged-in user can decrypt logs intended for him
   itCrypto.user = owner;
-  var receivedSignedLog = await itCrypto.decryptLog(jwe);
-  var receivedLog = receivedSignedLog.extract();
+  const receivedSignedLog = await itCrypto.decryptLog(jwe);
+  const receivedLog = receivedSignedLog.extract();
   console.log(receivedLog);
 }
 

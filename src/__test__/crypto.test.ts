@@ -37,13 +37,13 @@ afterEach(() => {
 });
 
 test('Test if expected data is present in JWE token', async () => {
-  let sender = await UserManagement.generateAuthenticatedUser();
-  let receiver1 = await UserManagement.generateAuthenticatedUser();
-  let receiver2 = await UserManagement.generateAuthenticatedUser();
-  let log = await sender.signLog(exampleAccessLog);
+  const sender = await UserManagement.generateAuthenticatedUser();
+  const receiver1 = await UserManagement.generateAuthenticatedUser();
+  const receiver2 = await UserManagement.generateAuthenticatedUser();
+  const log = await sender.signLog(exampleAccessLog);
 
-  let cipher = await EncryptionService.encrypt(log, sender, [receiver1, receiver2]);
-  let jwe = JSON.parse(cipher);
+  const cipher = await EncryptionService.encrypt(log, sender, [receiver1, receiver2]);
+  const jwe = JSON.parse(cipher);
 
   expect('iv' in jwe).toBe(true);
   expect('tag' in jwe).toBe(true);
@@ -53,15 +53,15 @@ test('Test if expected data is present in JWE token', async () => {
 });
 
 test('Test if expected data is present in JWE protected header', async () => {
-  let sender = await UserManagement.generateAuthenticatedUser();
-  let receiver = await UserManagement.generateAuthenticatedUser();
-  let log = await sender.signLog(exampleAccessLog);
+  const sender = await UserManagement.generateAuthenticatedUser();
+  const receiver = await UserManagement.generateAuthenticatedUser();
+  const log = await sender.signLog(exampleAccessLog);
 
-  let cipher = await EncryptionService.encrypt(log, sender, [receiver]);
-  let jwe = JSON.parse(cipher) as GeneralJWE;
+  const cipher = await EncryptionService.encrypt(log, sender, [receiver]);
+  const jwe = JSON.parse(cipher) as GeneralJWE;
 
   // Verify JWE encryption algorithm
-  let decodedHeader = JSON.parse(Buffer.from(jwe.protected, 'base64').toString());
+  const decodedHeader = JSON.parse(Buffer.from(jwe.protected, 'base64').toString());
   expect(decodedHeader['enc']).toBe(ENCRYPTION_ALG);
 
   // Verify content of metadata
@@ -70,19 +70,19 @@ test('Test if expected data is present in JWE protected header', async () => {
 });
 
 test('Test if modified JWE ciphertext is detected during decryption', async () => {
-  let sender = await UserManagement.generateAuthenticatedUser();
-  let receiver = await UserManagement.generateAuthenticatedUser();
-  let rawLog = exampleAccessLog;
+  const sender = await UserManagement.generateAuthenticatedUser();
+  const receiver = await UserManagement.generateAuthenticatedUser();
+  const rawLog = exampleAccessLog;
   rawLog.monitor = sender.id;
   rawLog.owner = receiver.id;
-  let fetchSender = createFetchSender([sender]);
+  const fetchSender = createFetchSender([sender]);
 
   sender.isMonitor = true;
-  let log = await sender.signLog(rawLog);
+  const log = await sender.signLog(rawLog);
 
-  let cipher = await EncryptionService.encrypt(log, sender, [receiver]);
-  let original = JSON.parse(cipher);
-  let modified = { ...original };
+  const cipher = await EncryptionService.encrypt(log, sender, [receiver]);
+  const original = JSON.parse(cipher);
+  const modified = { ...original };
   modified.ciphertext = modifyFirstChar(modified.ciphertext);
   console.log(modified);
   await expect(
@@ -94,23 +94,23 @@ test('Test if modified JWE ciphertext is detected during decryption', async () =
 });
 
 test('Test if modified JWE protected header is detected during decryption', async () => {
-  let sender = await UserManagement.generateAuthenticatedUser();
-  let receiver = await UserManagement.generateAuthenticatedUser();
-  let rawLog = exampleAccessLog;
+  const sender = await UserManagement.generateAuthenticatedUser();
+  const receiver = await UserManagement.generateAuthenticatedUser();
+  const rawLog = exampleAccessLog;
   rawLog.monitor = sender.id;
   rawLog.owner = receiver.id;
-  let fetchSender = createFetchSender([sender]);
+  const fetchSender = createFetchSender([sender]);
 
   sender.isMonitor = true;
-  let log = await sender.signLog(rawLog);
+  const log = await sender.signLog(rawLog);
 
   // Encrypt log
-  let cipher = await EncryptionService.encrypt(log, sender, [receiver]);
-  let original = JSON.parse(cipher);
-  let modified = { ...original };
+  const cipher = await EncryptionService.encrypt(log, sender, [receiver]);
+  const original = JSON.parse(cipher);
+  const modified = { ...original };
 
   // Modify data in the metadata -> throw error during decryption
-  let jweProtected = base64ToObj(original.protected);
+  const jweProtected = base64ToObj(original.protected);
   jweProtected.owner = modifyFirstChar(jweProtected.owner);
   modified.protected = objToBase64(jweProtected);
   await expect(
@@ -129,33 +129,33 @@ test('Test if modified JWE protected header is detected during decryption', asyn
 
 describe('JWS tokens are signed by invalid entities', () => {
   test('AccessLog is not signed by claimed monitor', async () => {
-    let actualMonitor = await UserManagement.generateAuthenticatedUser();
-    let claimedMonitor = await UserManagement.generateAuthenticatedUser();
-    let receiver = await UserManagement.generateAuthenticatedUser();
-    let rawLog = exampleAccessLog;
+    const actualMonitor = await UserManagement.generateAuthenticatedUser();
+    const claimedMonitor = await UserManagement.generateAuthenticatedUser();
+    const receiver = await UserManagement.generateAuthenticatedUser();
+    const rawLog = exampleAccessLog;
     rawLog.monitor = claimedMonitor.id;
     rawLog.owner = receiver.id;
-    let fetchSender = createFetchSender([claimedMonitor, actualMonitor, receiver]);
+    const fetchSender = createFetchSender([claimedMonitor, actualMonitor, receiver]);
 
     claimedMonitor.isMonitor = true;
     actualMonitor.isMonitor = true;
-    let log = await actualMonitor.signLog(rawLog);
+    const log = await actualMonitor.signLog(rawLog);
 
-    let jwe = await EncryptionService.encrypt(log, actualMonitor, [receiver]);
+    const jwe = await EncryptionService.encrypt(log, actualMonitor, [receiver]);
     await expect(DecryptionService.decrypt(jwe, receiver, fetchSender)).rejects.toThrow(
       'Could not verify AccessLog'
     );
   });
 
   test('SharedLog is not signed by claimed creator', async () => {
-    let actualSender = await UserManagement.generateAuthenticatedUser();
-    let claimedSender = await UserManagement.generateAuthenticatedUser();
-    let receiver = await UserManagement.generateAuthenticatedUser();
-    let rawLog = exampleAccessLog;
+    const actualSender = await UserManagement.generateAuthenticatedUser();
+    const claimedSender = await UserManagement.generateAuthenticatedUser();
+    const receiver = await UserManagement.generateAuthenticatedUser();
+    const rawLog = exampleAccessLog;
     rawLog.monitor = actualSender.id;
     rawLog.owner = receiver.id;
-    let fetchSender = createFetchSender([claimedSender, actualSender, receiver]);
-    let log = await actualSender.signLog(rawLog);
+    const fetchSender = createFetchSender([claimedSender, actualSender, receiver]);
+    const log = await actualSender.signLog(rawLog);
 
     // Mock the internal SharedLog, which contains a creator that did not sign the SharedLog
     jest
@@ -166,15 +166,15 @@ describe('JWS tokens are signed by invalid entities', () => {
     jest
       .spyOn(actualSender, 'signData')
       .mockImplementationOnce((data) => {
-        let jws = new FlattenedSign(data);
+        const jws = new FlattenedSign(data);
         return jws.setProtectedHeader({ alg: SIGNING_ALG }).sign(actualSender.signingKey);
       })
       .mockImplementationOnce((data) => {
-        let jws = new FlattenedSign(data);
+        const jws = new FlattenedSign(data);
         return jws.setProtectedHeader({ alg: SIGNING_ALG }).sign(claimedSender.signingKey);
       });
 
-    let jwe = await EncryptionService.encrypt(log, actualSender, [receiver]);
+    const jwe = await EncryptionService.encrypt(log, actualSender, [receiver]);
     await expect(DecryptionService.decrypt(jwe, receiver, fetchSender)).rejects.toThrow(
       'Could not verify SharedLog'
     );

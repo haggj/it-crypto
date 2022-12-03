@@ -86,14 +86,22 @@ console.log(receivedLog);
  ```
 
 # Development
+The library was developed and tested under  ```node 18.12.1``` and ```npm 8.19.2```
+
 Live compilation: ```tsc -w -p .```
 
-Execute Javascript code: ````node index.js````
+Execute Javascript code: ````node lib/src/index.js````
 
 ## Running tests
 
 ```
 npm test src
+```
+
+## Running linter
+
+```
+npm run lint
 ```
 
 ## Update npm package

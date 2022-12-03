@@ -3,7 +3,7 @@ import { Serializable } from './serializable';
 import { Buffer } from '../globals';
 
 /**
- * Represents a singed AccessLog.
+ * Represents a singed log. A log must always be singed by a monitor.
  */
 export class SignedAccessLog implements FlattenedJWS {
   payload: string;
@@ -55,17 +55,17 @@ export class AccessLog extends Serializable {
   }
 
   static fromFlattenedJWS(jws: FlattenedJWS): AccessLog {
-    let obj = Buffer.from(jws.payload, 'base64').toString();
+    const obj = Buffer.from(jws.payload, 'base64').toString();
     return AccessLog.fromJson(obj);
   }
 
   static fromBytes(data: Uint8Array): AccessLog {
-    let obj = super.fromBytes(data);
+    const obj = super.fromBytes(data);
     return AccessLog.fromObj(obj);
   }
 
   static fromJson(data: string): AccessLog {
-    let obj = super.fromJson(data);
+    const obj = super.fromJson(data);
     return AccessLog.fromObj(obj);
   }
 
@@ -79,7 +79,7 @@ export class AccessLog extends Serializable {
       'accessKind' in obj &&
       'dataType' in obj
     ) {
-      let emptyLog = new AccessLog('', '', '', '', 0, '', []);
+      const emptyLog = new AccessLog('', '', '', '', 0, '', []);
       return Object.assign(emptyLog, obj);
     }
     throw Error('JSON does not contain a valid AccessLog. Can not deserialize object.');

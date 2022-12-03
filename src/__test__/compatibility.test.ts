@@ -21,7 +21,7 @@ const jsDecryptB =
 const jsDecryptAB =
   '{"ciphertext":"2DuUFjjm2c-8EKuWi4QtOM6H4UW2ThQNknyO49QKiAKXfjfju4eHrxz4Qj0GQUXiijvJnV4RR_NGmKK5V0mrdeibhwUMUMpnmXepNdaBrpWJBOlW3ysSuvC-w2guAm6eutauA0R2I7ec94pLGwjapkqqL_xtWKnj3Vds4wejwSCm58uvt8uk9NxnMd2BivwQU1cPDBAZfVL3orln9Z9X3v9Z1fDCuP2c6dK-6fq8WOFvyDFmtEqqQp3D0QGg-FJhC7KQUJucwSkTkI6UbVpLMOtXRlY_lQXt24b3wQC7J-OW-K14T2lul8Wz5g73UxQcmokCrTLnkApsqJhJarOx9hNfMGiUl49Z448WtIkRWFO98TXoWtLnZOI2s0JbeMsxnbS6eIWuI8j3WCYf9zVgLkEayD-wW0EANRxTiw_strzLqhLw21jPA7JstGMuEf710LRZcNwe-p4LvSDW-eAWzsXPs9DGEF6cflsJruouH9eOc6zusAxs1PWbJ6Ju6bG1g9xmt1y7cDcEs8ShIHM_cjkPiww-JgYGyegUNMYHnlM5xdAAzfBbT_jBYylhlvZdy_XoKHW1A28_zbUZ54Bg-qJG3GW8-aZsYRJ-RmPKz3c1oEv_72qu8PJF0QJljs3ZPlfmHwL99nKNasTM-f6QShVclmadOPWOnwYBSaqlaUiEqCq_G_e5j2JjduFsEqvH1DJvDxjaq5nnR9Qdg3--hF9oNALioaf9gA5kjEtKyl3UKu3WhyAIxMzQiYDB_XOVUVKxDSVd2M0r_batlQm7FeJA4XGIAS2j7sLhf7c2PwmadJQPl9GpYHtz2s1J8bbKPxmWhCvhN8UNDxraWTxj0jS82TUv_lS2YrVJHqP04OORILrm3QFWGMTx7LLSmKm6yVlHvdvvDqbAEEGiL36TQps507rBB7Or2w391zCSNgc7IRw7wlIB1WuOIsi0","iv":"3oxBJNI4bvXLU4m4","recipients":[{"encrypted_key":"c20fUmdbEczdvRLfKL9itXv08mT22MUirp89cNe2xxCTiYoV4_wFDw","header":{"alg":"ECDH-ES+A256KW","epk":{"x":"N-H0jwy0K3AvNO1PBoczKyQdPyhEiQ1DtV1r-KPl76o","crv":"P-256","kty":"EC","y":"iHwZdLn5kBmlo-Z03TlzLUjTmAEQ0M4VDN2Ry7zjs_A"}}},{"encrypted_key":"177IKXct_Yc_UXIo9LVYjojvx4rm1wz29ps88Z47Q74wnSSYEdX-ng","header":{"alg":"ECDH-ES+A256KW","epk":{"x":"YMyLStWS7RWBWTMtBx5a27wu7VChIKD2vuSmnUgaaqg","crv":"P-256","kty":"EC","y":"mOeA_klE_ynjnpjXlihpy25OFlK0TcrCzcHaPz4-_1Q"}}}],"tag":"LbmchWv7PaJABuMRmI0Qcw","protected":"eyJlbmMiOiJBMjU2R0NNIiwicmVjaXBpZW50cyI6WyJzZW5kZXIiLCJyZWNlaXZlciJdLCJvd25lciI6InJlY2VpdmVyIn0"}';
 
-let senderPromise = UserManagement.importAuthenticatedUser(
+const senderPromise = UserManagement.importAuthenticatedUser(
   'sender',
   TestKeys.pubA,
   TestKeys.pubA,
@@ -29,7 +29,7 @@ let senderPromise = UserManagement.importAuthenticatedUser(
   TestKeys.privA
 );
 
-let receiverPromise = UserManagement.importAuthenticatedUser(
+const receiverPromise = UserManagement.importAuthenticatedUser(
   'receiver',
   TestKeys.pubB,
   TestKeys.pubB,
@@ -39,22 +39,22 @@ let receiverPromise = UserManagement.importAuthenticatedUser(
 
 describe('Test compatibility with go-it-crypto', () => {
   test('Decrypt JWE for single receiver', async () => {
-    let sender = await senderPromise;
+    const sender = await senderPromise;
     sender.isMonitor = true;
-    let receiver = await receiverPromise;
+    const receiver = await receiverPromise;
 
-    let fetchUser = createFetchSender([sender, receiver]);
+    const fetchUser = createFetchSender([sender, receiver]);
 
-    let signedLog = await receiver.decryptLog(goDecryptB, fetchUser);
-    let accessLog = signedLog.extract();
+    const signedLog = await receiver.decryptLog(goDecryptB, fetchUser);
+    const accessLog = signedLog.extract();
     expect(accessLog.justification).toBe('go-it-crypto');
   });
   test('Decrypt JWE for multiple receivers', async () => {
-    let sender = await senderPromise;
+    const sender = await senderPromise;
     sender.isMonitor = true;
-    let receiver = await receiverPromise;
+    const receiver = await receiverPromise;
 
-    let fetchUser = createFetchSender([sender, receiver]);
+    const fetchUser = createFetchSender([sender, receiver]);
 
     let signedLog = await sender.decryptLog(goDecryptAB, fetchUser);
     let accessLog = signedLog.extract();
@@ -68,22 +68,22 @@ describe('Test compatibility with go-it-crypto', () => {
 
 describe('Test compatibility with py-it-crypto', () => {
   test('Decrypt JWE for single receiver', async () => {
-    let sender = await senderPromise;
+    const sender = await senderPromise;
     sender.isMonitor = true;
-    let receiver = await receiverPromise;
+    const receiver = await receiverPromise;
 
-    let fetchUser = createFetchSender([sender, receiver]);
+    const fetchUser = createFetchSender([sender, receiver]);
 
-    let signedLog = await receiver.decryptLog(pythonDecryptB, fetchUser);
-    let accessLog = signedLog.extract();
+    const signedLog = await receiver.decryptLog(pythonDecryptB, fetchUser);
+    const accessLog = signedLog.extract();
     expect(accessLog.justification).toBe('py-it-crypto');
   });
   test('Decrypt JWE for multiple receivers', async () => {
-    let sender = await senderPromise;
+    const sender = await senderPromise;
     sender.isMonitor = true;
-    let receiver = await receiverPromise;
+    const receiver = await receiverPromise;
 
-    let fetchUser = createFetchSender([sender, receiver]);
+    const fetchUser = createFetchSender([sender, receiver]);
 
     let signedLog = await sender.decryptLog(pythonDecryptAB, fetchUser);
     let accessLog = signedLog.extract();
@@ -97,22 +97,22 @@ describe('Test compatibility with py-it-crypto', () => {
 
 describe('Test compatibility with js-it-crypto', () => {
   test('Decrypt JWE for single receiver', async () => {
-    let sender = await senderPromise;
+    const sender = await senderPromise;
     sender.isMonitor = true;
-    let receiver = await receiverPromise;
+    const receiver = await receiverPromise;
 
-    let fetchUser = createFetchSender([sender, receiver]);
+    const fetchUser = createFetchSender([sender, receiver]);
 
-    let signedLog = await receiver.decryptLog(jsDecryptB, fetchUser);
-    let accessLog = signedLog.extract();
+    const signedLog = await receiver.decryptLog(jsDecryptB, fetchUser);
+    const accessLog = signedLog.extract();
     expect(accessLog.justification).toBe('js-it-crypto');
   });
   test('Decrypt JWE for multiple receivers', async () => {
-    let sender = await senderPromise;
+    const sender = await senderPromise;
     sender.isMonitor = true;
-    let receiver = await receiverPromise;
+    const receiver = await receiverPromise;
 
-    let fetchUser = createFetchSender([sender, receiver]);
+    const fetchUser = createFetchSender([sender, receiver]);
 
     let signedLog = await sender.decryptLog(jsDecryptAB, fetchUser);
     let accessLog = signedLog.extract();
@@ -125,18 +125,18 @@ describe('Test compatibility with js-it-crypto', () => {
 });
 
 test('Compute tokens for compatibility tests', async () => {
-  let sender = await senderPromise;
-  let receiver = await receiverPromise;
+  const sender = await senderPromise;
+  const receiver = await receiverPromise;
 
-  let log = await sender.signLog(
+  const log = await sender.signLog(
     new AccessLog(sender.id, receiver.id, 'tool', 'js-it-crypto', 30, 'ts-it-crypto', [
       'email',
       'address',
     ])
   );
 
-  let jsDecryptB = await sender.encryptLog(log, [receiver]);
-  let jsDecryptAB = await receiver.encryptLog(log, [sender, receiver]);
+  const jsDecryptB = await sender.encryptLog(log, [receiver]);
+  const jsDecryptAB = await receiver.encryptLog(log, [sender, receiver]);
   console.log(jsDecryptB);
   console.log(jsDecryptAB);
 });

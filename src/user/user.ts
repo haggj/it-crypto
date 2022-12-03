@@ -16,7 +16,19 @@ import { Certificate } from 'pkijs';
 import { RemoteUser } from './remoteUser';
 import { AuthenticatedUser } from './authenticatedUser';
 
+/**
+ * Provides convenient functions to simplify the handling of users.
+ */
 export class UserManagement {
+  /**
+   * Import a user based on its public certificates. This function also verifies if the provided
+   * certificates are singed by the trusted certificate authority.
+   * @param id The identity of the imported user.
+   * @param encryptionCertificate The encryption certificate of the user.
+   * @param verificationCertificate The verification certificate of the user.
+   * @param isMonitor Indicates if the imported user is a monitor.
+   * @param trustedCaCertificate The certificate of the trusted certificate authority.
+   */
   static async importRemoteUser(
     id: string,
     encryptionCertificate: string,
@@ -24,9 +36,9 @@ export class UserManagement {
     isMonitor: boolean,
     trustedCaCertificate: string
   ): Promise<RemoteUser> {
-    let caCert: Certificate = pemToCertificate(trustedCaCertificate);
-    let encCert: Certificate = pemToCertificate(encryptionCertificate);
-    let vrfCert: Certificate = pemToCertificate(verificationCertificate);
+    const caCert: Certificate = pemToCertificate(trustedCaCertificate);
+    const encCert: Certificate = pemToCertificate(encryptionCertificate);
+    const vrfCert: Certificate = pemToCertificate(verificationCertificate);
 
     if (!(await encCert.verify(caCert))) throw Error('Could not verify encryptionCertificate.');
     if (!(await vrfCert.verify(caCert))) throw Error('Could not verify verificationCertificate.');
@@ -39,9 +51,12 @@ export class UserManagement {
     } as RemoteUser;
   }
 
+  /**
+   * This function generates a random RemoteUser. It is used during testing.
+   */
   static async generateRemoteUser(): Promise<RemoteUser> {
-    let encryptionKeys = await generateKeyPair(KEY_WRAP_ALG);
-    let signingKeys = await generateKeyPair(SIGNING_ALG);
+    const encryptionKeys = await generateKeyPair(KEY_WRAP_ALG);
+    const signingKeys = await generateKeyPair(SIGNING_ALG);
     return {
       id: uuidv4(),
       encryptionCertificate: encryptionKeys.publicKey,
@@ -50,6 +65,15 @@ export class UserManagement {
     } as RemoteUser;
   }
 
+  /**
+   * Import a user based on its certificates and keys.
+   * The returned user can be used to sign and encrypt logs.
+   * @param id The identity of the imported user.
+   * @param encryptionCertificate The encryption certificate of the user.
+   * @param verificationCertificate The verification certificate of the user.
+   * @param decryptionKey The decryption key of the user.
+   * @param signingKey The signing key of the user.
+   */
   static async importAuthenticatedUser(
     id: string,
     encryptionCertificate: string,
@@ -66,9 +90,12 @@ export class UserManagement {
     );
   }
 
+  /**
+   * This function generates a random AuthenticatedUser. It is used during testing.
+   */
   static async generateAuthenticatedUser(id?: string): Promise<AuthenticatedUser> {
-    let encryptionKeys = await generateKeyPair(KEY_WRAP_ALG);
-    let signingKeys = await generateKeyPair(SIGNING_ALG);
+    const encryptionKeys = await generateKeyPair(KEY_WRAP_ALG);
+    const signingKeys = await generateKeyPair(SIGNING_ALG);
     if (id == null) {
       id = uuidv4();
     }
@@ -121,12 +148,12 @@ export class _AuthenticatedUser implements AuthenticatedUser {
   }
 
   signData(data: Uint8Array): Promise<FlattenedJWS> {
-    let jws = new FlattenedSign(data);
+    const jws = new FlattenedSign(data);
     return jws.setProtectedHeader({ alg: SIGNING_ALG }).sign(this.signingKey);
   }
 
   async signLog(log: AccessLog): Promise<SignedAccessLog> {
-    let signed = await this.signData(log.asBytes());
+    const signed = await this.signData(log.asBytes());
     return new SignedAccessLog(signed);
   }
 }

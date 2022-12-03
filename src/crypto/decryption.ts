@@ -66,7 +66,10 @@ export class DecryptionService {
     const accessLog = await DecryptionService._verifyAccessLog(jwsAccessLog, monitor);
 
     // Verify that the recipients in the SharedLog are equal to the recipients in the metadata
-    const metaRecipients = decryptionResult.protectedHeader!.recipients as string[];
+    if (decryptionResult.protectedHeader === undefined) {
+      throw new Error('Malformed data: Missing protected header!');
+    }
+    const metaRecipients = decryptionResult.protectedHeader.recipients as string[];
     if (sharedLog.recipients.toString() !== metaRecipients.toString()) {
       throw new Error('Malformed data: Sets of recipients are not equal!');
     }
@@ -77,7 +80,7 @@ export class DecryptionService {
     }
 
     // Verify that the owner in the AccessLog is equal to the owner in the metadata
-    const metaOwner = decryptionResult.protectedHeader!.owner as string;
+    const metaOwner = decryptionResult.protectedHeader.owner as string;
     if (accessLog.owner !== metaOwner) {
       throw new Error('Malformed data: The specified owners are not equal!');
     }
@@ -108,8 +111,8 @@ export class DecryptionService {
    * @param jwsSharedLog
    */
   static _claimedCreator(jwsSharedLog: FlattenedJWSInput) {
-    let rawJson = Buffer.from(jwsSharedLog.payload as string, 'base64').toString();
-    let sharedLog = SharedLog.fromJson(rawJson);
+    const rawJson = Buffer.from(jwsSharedLog.payload as string, 'base64').toString();
+    const sharedLog = SharedLog.fromJson(rawJson);
     return sharedLog.creator;
   }
 
@@ -122,23 +125,35 @@ export class DecryptionService {
    * @param jwsAccessLog
    */
   static _claimedMonitor(jwsAccessLog: FlattenedJWSInput) {
-    let decoded = Buffer.from(jwsAccessLog.payload as string, 'base64').toString();
-    let accessLog = AccessLog.fromJson(decoded);
+    const decoded = Buffer.from(jwsAccessLog.payload as string, 'base64').toString();
+    const accessLog = AccessLog.fromJson(decoded);
     return accessLog.monitor;
   }
 
+  /**
+   * This function verifies if the provided FlattenedJWSInput is singed by the specified sender.
+   * It then tries to parse the JWS token into a SharedLog object.
+   * @param jwsSharedLog The JWS token which contains the SharedLog.
+   * @param sender The sender who signed the given JWS token.
+   */
   static async _verifySharedLog(
     jwsSharedLog: FlattenedJWSInput,
     sender: RemoteUser
   ): Promise<SharedLog> {
     try {
-      let vrf = await flattenedVerify(jwsSharedLog, sender.verificationCertificate);
+      const vrf = await flattenedVerify(jwsSharedLog, sender.verificationCertificate);
       return SharedLog.fromBytes(vrf.payload);
     } catch (e) {
       throw Error('Could not verify SharedLog.');
     }
   }
 
+  /**
+   * This function verifies if the provided FlattenedJWSInput is singed by the specified sender.
+   * It then tries to parse the JWS token into a AccessLog object.
+   * @param jwsAccessLog The JWS token which contains the AccessLog.
+   * @param sender The sender who signed the given JWS token. This must be a valid monitor.
+   */
   static async _verifyAccessLog(
     jwsAccessLog: FlattenedJWSInput,
     sender: RemoteUser
@@ -148,7 +163,7 @@ export class DecryptionService {
     }
 
     try {
-      let vrf = await flattenedVerify(jwsAccessLog, sender.verificationCertificate);
+      const vrf = await flattenedVerify(jwsAccessLog, sender.verificationCertificate);
       return AccessLog.fromBytes(vrf.payload);
     } catch (e) {
       throw Error('Could not verify AccessLog.');
