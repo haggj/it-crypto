@@ -7,8 +7,8 @@ import { AccessLog } from './logs/accessLog';
 import { UserManagement } from './user/user';
 import { AuthenticatedUser } from './user/authenticatedUser';
 import { ArgumentParser } from 'argparse';
-
-import { version } from '../package.json';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { version } = require('../package.json');
 
 const parser = new ArgumentParser({
   description:

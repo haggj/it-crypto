@@ -1,7 +1,7 @@
 {
   "name": "ts-it-crypto",
   "author": "Jonas Hagg",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "E2EE for the inverse transparency toolchain",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .ts",
     "build": "tsc",
     "prepare": "rm -r ./lib && npm run build",
-    "test": "jest --config jestconfig.json"
+    "test": "jest --config jestconfig.json src/"
   },
   "bin": "lib/cli.js",
   "files": [

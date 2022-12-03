@@ -95,7 +95,7 @@ Execute Javascript code: ````node lib/src/index.js````
 ## Running tests
 
 ```
-npm test src
+npm run test
 ```
 
 ## Running linter
