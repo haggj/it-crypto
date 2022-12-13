@@ -16,7 +16,6 @@ import { Certificate, setEngine } from 'pkijs';
 import { RemoteUser } from './remoteUser';
 import { AuthenticatedUser } from './authenticatedUser';
 import { SignedLog } from '../logs/signedLog';
-import { Crypto } from '@peculiar/webcrypto';
 
 /**
  * Provides convenient functions to simplify the handling of users.
@@ -46,7 +45,8 @@ export class UserManagement {
      the correct interface, this is why @peculiar/webcrypto dependency was added.
      */
     if (isNode) {
-      const crypto = new Crypto();
+      const webcrypto = require('@peculiar/webcrypto');
+      const crypto = new webcrypto.Crypto();
       setEngine('newEngine', crypto, crypto.subtle);
     }
 
