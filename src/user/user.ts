@@ -16,8 +16,6 @@ import { Certificate, CryptoEngine } from 'pkijs';
 import { RemoteUser } from './remoteUser';
 import { AuthenticatedUser } from './authenticatedUser';
 import { SignedLog } from '../logs/signedLog';
-import * as Crypto from 'crypto';
-import { webcrypto } from 'crypto';
 
 /**
  * Provides convenient functions to simplify the handling of users.
@@ -39,16 +37,27 @@ export class UserManagement {
     isMonitor: boolean,
     trustedCaCertificate: string
   ): Promise<RemoteUser> {
+    const isNode = typeof window === 'undefined';
+
     const caCert: Certificate = pemToCertificate(trustedCaCertificate);
     const encCert: Certificate = pemToCertificate(encryptionCertificate);
     const vrfCert: Certificate = pemToCertificate(verificationCertificate);
 
+    // Load crypto module based on environment
+    var crypto;
+    if (isNode) {
+      crypto = require('crypto').webcrypto;
+    } else {
+      crypto = window.crypto;
+    }
+
     // Manually setting crypto engine (https://github.com/PeculiarVentures/PKI.js/issues/363)
     var engine = new CryptoEngine({
       name: '',
-      crypto: webcrypto as Crypto,
-      subtle: webcrypto.subtle,
+      crypto: crypto as Crypto,
+      subtle: crypto.subtle,
     });
+
     if (!(await encCert.verify(caCert, engine)))
       throw Error('Could not verify encryptionCertificate.');
     if (!(await vrfCert.verify(caCert, engine)))
