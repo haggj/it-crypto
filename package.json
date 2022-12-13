@@ -1,7 +1,7 @@
 {
   "name": "ts-it-crypto",
   "author": "Jonas Hagg",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "E2EE for the inverse transparency toolchain",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -17,6 +17,7 @@
     "lib/**/*"
   ],
   "dependencies": {
+    "@peculiar/webcrypto": "^1.4.0",
     "argparse": "^2.0.1",
     "buffer": "^6.0.3",
     "jose": "^4.9.3",
@@ -24,7 +25,6 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@peculiar/webcrypto": "^1.4.0",
     "@types/argparse": "^2.0.10",
     "@types/jest": "^29.0.3",
     "@types/node": "^18.7.21",
