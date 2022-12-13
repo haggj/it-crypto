@@ -12,10 +12,11 @@ import { EncryptionService } from '../crypto/encryption';
 import { AccessLog } from '../logs/accessLog';
 import { DecryptionService } from '../crypto/decryption';
 import { pemToCertificate } from '../utils/parseCertificate';
-import { Certificate } from 'pkijs';
+import { Certificate, setEngine } from 'pkijs';
 import { RemoteUser } from './remoteUser';
 import { AuthenticatedUser } from './authenticatedUser';
 import { SignedLog } from '../logs/signedLog';
+import { Crypto } from '@peculiar/webcrypto';
 
 /**
  * Provides convenient functions to simplify the handling of users.
@@ -37,6 +38,18 @@ export class UserManagement {
     isMonitor: boolean,
     trustedCaCertificate: string
   ): Promise<RemoteUser> {
+    const isNode = typeof window === 'undefined';
+
+    /**
+     PKIJS requires Crypto engine if not running in browser.
+     The node native webcrypto engine (import {webcrypto} from "crypto") does not implement
+     the correct interface, this is why @peculiar/webcrypto dependency was added.
+     */
+    if (isNode) {
+      const crypto = new Crypto();
+      setEngine('newEngine', crypto, crypto.subtle);
+    }
+
     const caCert: Certificate = pemToCertificate(trustedCaCertificate);
     const encCert: Certificate = pemToCertificate(encryptionCertificate);
     const vrfCert: Certificate = pemToCertificate(verificationCertificate);

@@ -23,6 +23,11 @@ The function needs to implement the following method signature:
 Assuming `pubA` and `privA` are PEM-encoded public/private keys of a user, the following code is a complete example of how to use the library:
 
  ```typescript
+import { AccessLog } from 'ts-it-crypto/lib/logs/accessLog';
+import { UserManagement } from 'ts-it-crypto/lib/user/user';
+import { RemoteUser } from 'ts-it-crypto/lib/user/remoteUser';
+import { ItCrypto } from 'ts-it-crypto/lib/itcrypto';
+
 const pubCa =
   '-----BEGIN CERTIFICATE-----\n' +
   'MIIBITCByAIJAJTQXJMDfhh5MAoGCCqGSM49BAMCMBkxFzAVBgNVBAMMDkRldmVs\n' +

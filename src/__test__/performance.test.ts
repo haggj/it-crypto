@@ -1,6 +1,7 @@
 import { UserManagement } from '../user/user';
 import { AccessLog } from '../logs/accessLog';
 import { RemoteUser } from '../user/remoteUser';
+const { performance } = require('perf_hooks');
 
 test('Generate users and encrypt/decrypt data for single receiver', async () => {
   const sender = await UserManagement.generateAuthenticatedUser();

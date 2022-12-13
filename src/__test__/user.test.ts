@@ -2,9 +2,7 @@ import { v4 } from 'uuid';
 import { AccessLog } from '../logs/accessLog';
 import { UserManagement } from '../user/user';
 import { createFetchSender } from '../utils/fetchSender';
-import { setEngine } from 'pkijs';
 import { TestKeys } from './utils';
-import { Crypto } from '@peculiar/webcrypto';
 
 test('Generate users and encrypt/decrypt data for single receiver', async () => {
   const sender = await UserManagement.generateAuthenticatedUser();
@@ -95,14 +93,6 @@ test('Import remote User with CA signed keys', async () => {
   const encryptionCertificate = TestKeys.pubB;
   const verificationCertificate = TestKeys.pubA;
 
-  /*
-  PKIJS requires Crypto engine if not running in browser.
-  The node native webcrypto engine (import {webcrypto} from "crypto") does not implement
-  the correct interface, this is why @peculiar/webcrypto dependency was added.
-  */
-  const crypto = new Crypto();
-  setEngine('newEngine', crypto, crypto.subtle);
-
   // import remote user which internally verifies if encryption and verification certificate are signed by CA
   const receiver = await UserManagement.importRemoteUser(
     v4(),
@@ -121,14 +111,6 @@ test('Import remote User with CA signed keys', async () => {
 });
 
 test('Import remote User with CA signed keys fails', async () => {
-  /*
-  PKIJS requires Crypto engine if not running in browser.
-  The node native webcrypto engine (import {webcrypto} from "crypto") does not implement
-  the correct interface, this is why @peculiar/webcrypto dependency was added.
-  */
-  const crypto = new Crypto();
-  setEngine('newEngine', crypto, crypto.subtle);
-
   const receiverPromise = UserManagement.importRemoteUser(
     v4(),
     TestKeys.pubB,

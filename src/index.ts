@@ -2,16 +2,6 @@ import { AccessLog } from './logs/accessLog';
 import { UserManagement } from './user/user';
 import { RemoteUser } from './user/remoteUser';
 import { ItCrypto } from './itcrypto';
-import { setEngine } from 'pkijs';
-import { Crypto } from '@peculiar/webcrypto';
-
-/**
-PKIJS requires Crypto engine if not running in browser.
-The node native webcrypto engine (import {webcrypto} from "crypto") does not implement
-the correct interface, this is why @peculiar/webcrypto dependency was added.
-*/
-const crypto = new Crypto();
-setEngine('newEngine', crypto, crypto.subtle);
 
 const pubCa =
   '-----BEGIN CERTIFICATE-----\n' +

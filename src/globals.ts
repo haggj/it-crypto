@@ -14,7 +14,8 @@ export const ENCRYPTION_ALG = 'A256GCM';
 export const SIGNING_ALG = 'ES256';
 
 /**
- Provide consistent API for node/browser to encode/decode base64 strings.
+ Provide consistent API for node and browser to encode/decode base64 strings:
+ https://www.npmjs.com/package/buffer
  */
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-export const Buffer = require('buffer').Buffer;
+export const Buffer = require('buffer/').Buffer;
