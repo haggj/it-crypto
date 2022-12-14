@@ -8,13 +8,14 @@ The module was published to the [npm package index](https://www.npmjs.com/packag
 For a detailed description of the implemented protocol, security considerations and software architecture have a look to the thesis.
 
 ## Installation
-To use the go-it-crypto module you can install it with:
+To use the ts-it-crypto module you can install it with:
 `npm install ts-it-crypto`
-## Usage
 
-The functionality of this library requires a function that resolves the identity of users to a `RemoteUser` object.
+
+## Usage
+This library requires a function that resolves the identity of users to a `RemoteUser` object.
 This objects holds the public keys of a user.
-This function is mandatory for decryption since it dynamically resolves the identities to the cryptographic keys
+This function is mandatory for decryption because it dynamically resolves the identities to the cryptographic keys
 of a user.
 Usually the function requests your API to fetch public keys of a user.
 The function needs to implement the following method signature:
@@ -95,7 +96,7 @@ The library was developed and tested under  ```node 18.12.1``` and ```npm 8.19.2
 
 Live compilation: ```tsc -w -p .```
 
-Execute Javascript code: ````node lib/src/index.js````
+Execute Javascript code: ````node lib/index.js````
 
 ## Running tests
 
