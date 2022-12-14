@@ -1,9 +1,12 @@
 {
   "name": "ts-it-crypto",
   "author": "Jonas Hagg",
-  "version": "1.0.15",
+  "version": "1.0.19",
   "description": "E2EE for the inverse transparency toolchain",
   "main": "lib/index.js",
+  "browser": {
+    "./lib/utils/cryptoPlatform.js": "./lib/utils/cryptoPlatformBrowser.js"
+  },
   "types": "lib/index.d.ts",
   "scripts": {
     "browser": "browserify lib/index.js -s crytp -p esmify -o bundle.js",
